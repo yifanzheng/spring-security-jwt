@@ -4,7 +4,7 @@ package com.example.security.entity;
  * @author kevin
  * @date 2018-10-03 11:01
  **/
-public class User {
+public class UserDto {
     private String username;
 
     private String password;

@@ -7,32 +7,57 @@ protected void configure(HttpSecurity http) throws Exception {
             .antMatchers("/").permitAll()
             .antMatchers(HttpMethod.POST,"/login").permitAll()
             .anyRequest().authenticated().and()
-            //filter /api/** request
+             // 过滤 /api/** 请求
             .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 }
 ```
-在Filter过滤器中，设置身份信息认证。
+在JwtAuthenticationFilter过滤器中，设置身份信息认证，并存入上下文。
 ```java
-protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    try {
-        if(isProtectedUrl(request)){
-            Map<String, Object> body = JwtUtil.validateTokenAndAddRoleToHeader(request);
-            //获取role信息
-            String role = String.valueOf(body.get("ROLE"));
-            SecurityContextHolder.getContext()
-                    .setAuthentication(new UsernamePasswordAuthenticationToken(null,null,
-                            Arrays.asList(new GrantedAuthority() {
-                                @Override
-                                public String getAuthority() {
-                                    return role;
-                                }
-                            })));
+@Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        try {
+            if (isProtectedUrl("/api/**", request)) {
+                String token = request.getHeader(Constants.AUTO_HEADER);
+                Map<String, Object> body = JwtUtils.validateTokenAndAddRoleToHeader(token);
+                // 获取role信息
+                UserDto user = new UserDto();
+                user.setUsername(String.valueOf(body.get("username")));
+                user.setPassword(String.valueOf(body.get("password")));
+                // 获取验证对象
+                Authentication authentication = SecurityUtils.getAuthentication(user);
+                // 将验证信息放入上下文
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+            e.printStackTrace();
+            return;
         }
-    } catch (Exception e) {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,e.getMessage());
-        return;
+        //如果jwt检查通过就放行
+        filterChain.doFilter(request, response);
     }
-    //如果jwt检查通过就放行
-    filterChain.doFilter(request,response);
 }
+```
+根据实际需要，可以在spring security提供的SecurityContextHolder上下文控制器中获取存入上下文的信息
+```java
+public static Optional<String> getCurrentUserLogin() {
+        // 获取上下文对象
+        SecurityContext context = SecurityContextHolder.getContext();
+
+        // 获取验证信息
+        Authentication authentication = context.getAuthentication();
+
+        //返回上下文中的用户信息
+        return Optional.ofNullable(authentication)
+                .map(auth -> {
+                    if (auth.getPrincipal() instanceof UserDetails) {
+                        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+                        return userDetails.getUsername();
+                    } else if (auth.getPrincipal() instanceof String) {
+                        return (String) auth.getPrincipal();
+                    }
+                    return null;
+                });
+
+    }
 ```
