@@ -44,7 +44,7 @@ public final class JwtUtils {
      *
      * @return
      */
-    public static Map<String, Object> validateTokenAndAddRoleToHeader(String token) {
+    public static UserDto validateToken(String token) {
         if (token != null) {
             // 解析token
             try {
@@ -52,7 +52,11 @@ public final class JwtUtils {
                         .setSigningKey(Constants.SECRET)
                         .parseClaimsJws(token.replace(Constants.TOKEN_PREFIX, ""))
                         .getBody();
-                return body;
+                // 获取role信息
+                UserDto user = new UserDto();
+                user.setUsername(String.valueOf(body.get("username")));
+                user.setPassword(String.valueOf(body.get("password")));
+                return user;
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage());
             }

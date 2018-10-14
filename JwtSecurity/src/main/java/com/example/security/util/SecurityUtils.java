@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.*;
 
 /**
+ * 工具类
+ *
  * @author kevin
  * @date 2018-10-12 21:28
  **/

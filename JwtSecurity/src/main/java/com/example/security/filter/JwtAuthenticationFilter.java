@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * jwt验证过滤器
@@ -38,16 +39,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             if (isProtectedUrl("/api/**", request)) {
+                // 从请求头中获取token
                 String token = request.getHeader(Constants.AUTO_HEADER);
-                Map<String, Object> body = JwtUtils.validateTokenAndAddRoleToHeader(token);
-                // 获取role信息
-                UserDto user = new UserDto();
-                user.setUsername(String.valueOf(body.get("username")));
-                user.setPassword(String.valueOf(body.get("password")));
-                // 获取验证对象
-                Authentication authentication = SecurityUtils.getAuthentication(user);
-                // 将验证信息放入上下文
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // 验证token的有效性
+                UserDto user = JwtUtils.validateToken(token);
+                // 安全上下文为空时，需要授权用户
+                if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // 获取验证对象
+                    Authentication authentication = SecurityUtils.getAuthentication(user);
+                    // 将验证信息放入上下文
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
