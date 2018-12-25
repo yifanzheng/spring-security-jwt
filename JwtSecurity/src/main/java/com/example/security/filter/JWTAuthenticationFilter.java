@@ -19,8 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * jwt验证过滤器
@@ -29,7 +27,7 @@ import java.util.Objects;
  * @date 2018-10-02 17:50
  **/
 @Configuration
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JWTAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 路径匹配器
      */
@@ -65,11 +63,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return pathMatcher.match(path, request.getServletPath());
     }
 
-    @Bean
-    public FilterRegistrationBean jwtFilter() {
-        final FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter();
-        registrationBean.setFilter(filter);
-        return registrationBean;
-    }
 }
