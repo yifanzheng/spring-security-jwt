@@ -37,7 +37,7 @@ public final class JwtUtils {
                 .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)
                 .signWith(Keys.hmacShaKeyFor(jwtSecretKey), SignatureAlgorithm.HS256)
                 .setSubject(username)
-                .claim(SecurityConstants.TOKEN_ROL_CLAIM, roles)
+                .claim(SecurityConstants.TOKEN_ROLE_CLAIM, roles)
                 .setIssuer(SecurityConstants.TOKEN_ISSUER)
                 .setIssuedAt(new Date())
                 .setAudience(SecurityConstants.TOKEN_AUDIENCE)
@@ -75,11 +75,12 @@ public final class JwtUtils {
     }
 
     public static List<GrantedAuthority> getRoles(String token) {
-        List<?> roles = (List<?>)validateToken(token).get(SecurityConstants.TOKEN_ROL_CLAIM);
-        List<GrantedAuthority> authorities = roles.stream()
+        List<?> roles = (List<?>)validateToken(token).get(SecurityConstants.TOKEN_ROLE_CLAIM);
+        return roles.stream()
                 .map(role -> new SimpleGrantedAuthority((String) role))
                 .collect(Collectors.toList());
-        return authorities;
+
+
     }
 
 }

@@ -20,8 +20,8 @@ public class User {
     @Column(name = "password", columnDefinition = "varchar(20)", nullable = false)
     private String password;
 
-    @Column(name = "roles", columnDefinition = "varchar(50)")
-    private String roles;
+    @Column(name = "role", columnDefinition = "varchar(50)")
+    private String role;
 
     public Long getId() {
         return id;
@@ -47,11 +47,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRoles() {
-        return roles;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoles(String roles) {
-        this.roles = roles;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

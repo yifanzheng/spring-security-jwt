@@ -47,7 +47,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         }
         // 从请求头中获取 token
         String token = authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
-        System.out.println(token);
         // 获取认证信息
         Authentication authentication = this.getAuthentication(token);
         // 将认证信息存入 Spring 安全上下文中

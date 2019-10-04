@@ -80,7 +80,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
              .and()
                 .authorizeRequests()
                  // 指定路径下的资源需要进行验证后才能访问
-                .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                .antMatchers("/api/users/register").permitAll()
                 .antMatchers("/api/**").authenticated()
                 // 其他请求都放行，无需验证
                 .anyRequest().permitAll()

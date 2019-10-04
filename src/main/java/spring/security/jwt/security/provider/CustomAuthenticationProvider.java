@@ -1,5 +1,6 @@
 package spring.security.jwt.security.provider;
 
+import org.apache.commons.lang3.StringUtils;
 import spring.security.jwt.SpringSecurityContextHelper;
 import spring.security.jwt.entity.User;
 import spring.security.jwt.service.UserService;
@@ -33,17 +34,20 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         // 获取认证信息的用户名和密码 （即登录请求中的用户名和密码）
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
-        System.out.println(username + "=" + password);
         // 获取数据库中的用户名和密码
         User user = userService.getUserByName(username);
 
         // 判断用户名和密码是否正确
         if (Objects.equals(username, user.getUsername()) && Objects.equals(password, user.getPassword())) {
+            String role = user.getRole();
+            // 如果用户角色为空，则默认是 ROLE_USER
+            if (StringUtils.isEmpty(role)) {
+                role = "ROLE_USER";
+            }
             // 设置权限和角色
             List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(user.getRoles()));
-            System.out.println("hhhhh");
-            // 生成令牌
+            authorities.add(new SimpleGrantedAuthority(role));
+            // 生成认证信息
             Authentication auth = new UsernamePasswordAuthenticationToken(username, password, authorities);
             return auth;
         } else {

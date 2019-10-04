@@ -14,7 +14,7 @@ public final class SecurityConstants {
     /**
      * 用于登录的 url
      */
-    public static final String AUTH_LOGIN_URL = "/auth/login";
+    public static final String AUTH_LOGIN_URL = "/api/users/login";
 
 
     /**
@@ -41,12 +41,12 @@ public final class SecurityConstants {
      */
     public static final String TOKEN_TYPE = "JWT";
 
-    public static final String TOKEN_ROL_CLAIM = "rol";
+    public static final String TOKEN_ROLE_CLAIM = "role";
     public static final String TOKEN_ISSUER = "security";
     public static final String TOKEN_AUDIENCE = "security-all";
 
     /**
-     * 有效时间 2 hours
+     * 有效时间 2 小时
      */
     public static final Long EXPIRATION_TIME = 60 * 60 * 2L;
 

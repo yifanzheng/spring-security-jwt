@@ -32,10 +32,8 @@ public final class SecurityUtils {
     public static Optional<String> getCurrentUserLogin() {
         // 获取上下文对象
         SecurityContext context = SecurityContextHolder.getContext();
-
         // 获取验证信息
         Authentication authentication = context.getAuthentication();
-
         //返回上下文中的用户信息
         return Optional.ofNullable(authentication)
                 .map(auth -> {
@@ -49,21 +47,5 @@ public final class SecurityUtils {
                 });
 
     }
-
-    /**
-     * 获取用户验证信息
-     *
-     * @return
-     */
-    public static Authentication getAuthentication(UserDTO user) {
-        // 添加授权信息
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        // 缓存用户的信息
-        UserDetails userDetails = new User(user.getUsername(), "", authorities);
-        // 用户验证，使用密码验证用户信息的正确性
-        return new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(), authorities);
-    }
-
 
 }
