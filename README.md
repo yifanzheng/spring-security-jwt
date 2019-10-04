@@ -29,7 +29,7 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 
 **带上正确的 token 访问需要身份验证的资源**  
 
-![correctToken](./asset/imgs/corectToken.png)  
+![correctToken](./asset/imgs/correctToken.png)  
 
 **带上不正确的 token 访问需要身份验证的资源**
 
@@ -37,7 +37,7 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 
 
 **不带 token 访问需要身份验证的资源** 
-![noToken](./asset/imgs/noToken.png)
+![noToken](./sset/imgs/noToken.png)
 
 
 ### 参考文档
