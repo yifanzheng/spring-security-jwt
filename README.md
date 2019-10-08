@@ -15,7 +15,7 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 
 - 配置好 Maven 仓库，使用 IntelliJ IDEA 工具打开项目。
 
-- 在 application.properties 配置文件中将数据信息改成你自己的。
+- 在 application.properties 配置文件中将数据库信息改成你自己的。
 
 ### 测试 API
 
