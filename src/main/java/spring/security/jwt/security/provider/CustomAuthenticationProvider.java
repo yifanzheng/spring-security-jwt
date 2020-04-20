@@ -47,11 +47,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             // 设置权限和角色
             List<GrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(role));
+
             // 生成认证信息
-            Authentication auth = new UsernamePasswordAuthenticationToken(username, password, authorities);
-            return auth;
+            return new UsernamePasswordAuthenticationToken(username, password, authorities);
         } else {
-            throw new BadCredentialsException("The wrong password.");
+            throw new BadCredentialsException("The user name or password error.");
         }
     }
 

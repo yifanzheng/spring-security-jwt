@@ -26,12 +26,18 @@ public final class JwtUtils {
     }
 
     /**
-     * 根据用户名生成token
+     * 根据用户名生成 token
      *
-     * @return
+     * @param username   用户名
+     * @param roles      用户角色
+     * @param isRemember 是否记住我
+     * @return 返回生成的 token
      */
-    public static String generateToken(String username, List<String> roles) {
+    public static String generateToken(String username, List<String> roles, boolean isRemember) {
         byte[] jwtSecretKey = DatatypeConverter.parseBase64Binary(SecurityConstants.JWT_SECRET_KEY);
+        // 过期时间
+        long expiration = isRemember ? SecurityConstants.EXPIRATION_REMEMBER_TIME : SecurityConstants.EXPIRATION_TIME;
+        // 生成 token
         String token = Jwts.builder()
                 // 生成签证信息
                 .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)
@@ -42,40 +48,39 @@ public final class JwtUtils {
                 .setIssuedAt(new Date())
                 .setAudience(SecurityConstants.TOKEN_AUDIENCE)
                 // 设置有效时间
-                .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
                 .compact();
         // jwt 前面一般都会加 Bearer，在请求头里加入 Authorization，并加上 Bearer 标注
         return SecurityConstants.TOKEN_PREFIX + token;
     }
 
     /**
-     * 验证 token，返回结果。
-     * 如果解析失败，说明 token 是无效的
+     * 验证 token，返回结果
      *
-     * @return
+     * <p>
+     * 如果解析失败，说明 token 是无效的
      */
     private static Claims validateToken(String token) {
         byte[] secretKey = DatatypeConverter.parseBase64Binary(SecurityConstants.JWT_SECRET_KEY);
 
         if (StringUtils.isEmpty(token)) {
-          throw new RuntimeException("Miss token");
+            throw new RuntimeException("Miss token");
         }
-        Claims body = Jwts.parser()
+
+        return Jwts.parser()
                 .setSigningKey(Keys.hmacShaKeyFor(secretKey))
                 .parseClaimsJws(token)
                 .getBody();
-
-        return body;
     }
 
     public static String getUsername(String token) {
         Claims claims = validateToken(token);
-        String username = claims.getSubject();
-        return username;
+
+        return claims.getSubject();
     }
 
     public static List<GrantedAuthority> getRoles(String token) {
-        List<?> roles = (List<?>)validateToken(token).get(SecurityConstants.TOKEN_ROLE_CLAIM);
+        List<?> roles = (List<?>) validateToken(token).get(SecurityConstants.TOKEN_ROLE_CLAIM);
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority((String) role))
                 .collect(Collectors.toList());

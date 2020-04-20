@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * JwtAuthorizationFilter 用于处理所有 HTTP 请求，并检查是否存在带有正确 token 的 Authorization 标头。
- * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring 的安全上下文中，并授权此次请求访问资源。
+ * JwtAuthorizationFilter 用户请求授权过滤器
+ *
+ * <p>
+ * 用于处理所有 HTTP 请求，并检查是否存在带有正确 token 的 Authorization 标头。
+ * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring 的安全上下文中，并授权此次请求访问资源。</p>
  *
  * @author star
  */
@@ -56,7 +59,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private Authentication getAuthentication(String token) {
+        // 从 token 信息中获取用户名
         String username = JwtUtils.getUsername(token);
+        // 获取用户角色
         List<GrantedAuthority> authorities = JwtUtils.getRoles(token);
         try {
             if (StringUtils.isNotEmpty(username)) {
