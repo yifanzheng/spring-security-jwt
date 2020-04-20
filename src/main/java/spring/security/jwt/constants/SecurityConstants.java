@@ -19,8 +19,8 @@ public final class SecurityConstants {
 
     /**
      * JWT签名密钥，这里使用 HS512 算法的签名密钥
-     * 注意：最好使用环境变量或 .properties 文件的方式将密钥传入程序
      * <p>
+     * 注意：最好使用环境变量或 .properties 文件的方式将密钥传入程序
      * 密钥生成地址：http://www.allkeysgenerator.com/
      */
     public static final String JWT_SECRET_KEY = "p2s5v8y/B?E(H+MbQeThVmYq3t6w9z$C&F)J@NcRfUjXnZr4u7x!A%D*G-KaPdS";

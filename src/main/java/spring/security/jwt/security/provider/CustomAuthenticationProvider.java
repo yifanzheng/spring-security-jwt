@@ -35,7 +35,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
         // 获取数据库中的用户名和密码
-        User user = userService.getUserByName(username);
+        User user = userService.getUserByName(username, password);
 
         // 判断用户名和密码是否正确
         if (Objects.equals(username, user.getUsername()) && Objects.equals(password, user.getPassword())) {
@@ -59,4 +59,5 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public boolean supports(Class<?> aClass) {
         return aClass.equals(UsernamePasswordAuthenticationToken.class);
     }
+
 }

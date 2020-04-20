@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 /**
- * @author kevin
- * @date 2018-10-12 23:17
+ * SpringSecurityAuditorAware
+ *
+ * @author star
  **/
 @Component
 public class SpringSecurityAuditorAware implements AuditorAware<String> {

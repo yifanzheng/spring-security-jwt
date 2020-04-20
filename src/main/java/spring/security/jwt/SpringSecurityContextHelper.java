@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
+ * SpringSecurityContextHelper
+ *
  * @author star
  */
 @Component

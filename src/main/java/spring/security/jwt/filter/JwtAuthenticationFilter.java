@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private AuthenticationManager authenticationManager;
 
-    private ThreadLocal<Boolean> rememberMeLocal = new ThreadLocal<>();
+    private final ThreadLocal<Boolean> rememberMeLocal = new ThreadLocal<>();
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;

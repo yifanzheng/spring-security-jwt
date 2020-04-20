@@ -14,12 +14,12 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * WebCrosConfiguration 跨域配置
+ * WebCorsConfiguration 跨域配置
  *
  * @author star
  */
 @Configuration
-public class WebCrosConfiguration implements WebMvcConfigurer {
+public class WebCorsConfiguration implements WebMvcConfigurer {
 
     @Bean
     public CorsFilter corsFilter() {

@@ -29,8 +29,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public User getUserByName(String username) {
-        Optional<User> usernameOptional = userRepository.findByUsername(username);
+    public User getUserByName(String username, String password) {
+        Optional<User> usernameOptional = userRepository.findByUsernameAndPasssword(username, password);
         return usernameOptional
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }

@@ -1,5 +1,6 @@
 package spring.security.jwt.security.config;
 
+import spring.security.jwt.constants.SecurityConstants;
 import spring.security.jwt.filter.JwtAuthenticationFilter;
 import spring.security.jwt.filter.JwtAuthorizationFilter;
 import spring.security.jwt.security.provider.CustomAuthenticationProvider;
@@ -35,13 +36,13 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private SecurityProblemSupport problemSupport;
+    private SecurityProblemSupport securityProblemSupport;
 
     @Autowired
     private CorsFilter corsFilter;
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
@@ -61,9 +62,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * 定义安全策略
-     *
-     * @param http
-     * @throws Exception
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -72,7 +70,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 // 当用户无权限访问资源时发送 401 响应
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                .accessDeniedHandler(problemSupport)
+                .accessDeniedHandler(securityProblemSupport)
              .and()
                 // 禁用 CSRF
                 .csrf().disable()
@@ -80,7 +78,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
              .and()
                 .authorizeRequests()
                  // 指定路径下的资源需要进行验证后才能访问
-                .antMatchers(HttpMethod.POST, "/api/users/login").permitAll()
+                .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
                 .antMatchers("/api/users/register").permitAll()
                 .antMatchers("/api/**").authenticated()
                 // 其他请求都放行，无需验证
