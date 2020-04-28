@@ -1,7 +1,9 @@
 package spring.security.jwt.security.provider;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.CollectionUtils;
 import spring.security.jwt.SpringSecurityContextHelper;
+import spring.security.jwt.constant.UserRoleConstants;
 import spring.security.jwt.entity.User;
 import spring.security.jwt.service.UserService;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,12 +14,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * CustomAuthenticationProvider 自定义身份验证组件
+ * CustomAuthenticationProvider 自定义用户身份验证组件
+ *
+ * <p>
+ * 提供用户登录密码验证功能。根据用户名从数据库中取出用户信息，进行密码验证，验证通过则赋予用户相应权限。
  *
  * @author star
  */
@@ -26,33 +32,33 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     private final UserService userService;
 
     public CustomAuthenticationProvider() {
+
         this.userService = SpringSecurityContextHelper.getBean(UserService.class);
     }
-
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        // 获取认证信息的用户名和密码 （即登录请求中的用户名和密码）
-        String username = authentication.getName();
+    public Authentication authenticate(Authentication authentication) throws BadCredentialsException, UsernameNotFoundException {
+        // 获取验证信息中的用户名和密码 （即登录请求中的用户名和密码）
+        String userName = authentication.getName();
         String password = authentication.getCredentials().toString();
-        // 获取数据库中的用户名和密码
-        User user = userService.getUserByName(username, password);
-
-        // 判断用户名和密码是否正确
-        if (Objects.equals(username, user.getUsername()) && Objects.equals(password, user.getPassword())) {
-            String role = user.getRole();
-            // 如果用户角色为空，则默认是 ROLE_USER
-            if (StringUtils.isEmpty(role)) {
-                role = "ROLE_USER";
+        // 根据登录名获取用户信息
+        User user = userService.getUserByName(userName);
+        // 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
+        if (user != null && Objects.equals(user.getPassword(), password)) {
+            List<String> roles = userService.listUserRoles(userName);
+            // 如果用户角色为空，则默认赋予 ROLE_USER 权限
+            if (CollectionUtils.isEmpty(roles)) {
+                roles = Collections.singletonList(UserRoleConstants.ROLE_USER);
             }
-            // 设置权限和角色
-            List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(role));
-
+            // 设置权限
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
             // 生成认证信息
-            return new UsernamePasswordAuthenticationToken(username, password, authorities);
-        } else {
-            throw new BadCredentialsException("The user name or password error.");
+            return new UsernamePasswordAuthenticationToken(userName, password, authorities);
         }
+        // 验证不成功就抛出异常
+        throw new BadCredentialsException("The userName or password error.");
+
     }
 
     @Override

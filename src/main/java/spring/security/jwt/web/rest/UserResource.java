@@ -1,8 +1,10 @@
 package spring.security.jwt.web.rest;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.security.access.prepost.PreAuthorize;
 import spring.security.jwt.service.UserService;
-import spring.security.jwt.service.dto.UserDTO;
+import spring.security.jwt.dto.UserRegisterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +16,21 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/users")
-@Api(tags = {"User Resource"})
+@Api(tags = {"用户资源"})
 public class UserResource {
 
     @Autowired
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody UserDTO dto) {
-        userService.register(dto);
+    @ApiOperation(value = "用户注册")
+    public ResponseEntity<Void> register(@RequestBody UserRegisterDTO userRegister) {
+        userService.register(userRegister);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/detail")
+    @ApiOperation(value = "获取用户详情")
     public ResponseEntity<Object> getUsersDetail() {
         return ResponseEntity.ok("Get users detail success.");
     }

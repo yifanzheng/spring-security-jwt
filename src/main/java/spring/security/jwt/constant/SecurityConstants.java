@@ -1,4 +1,4 @@
-package spring.security.jwt.constants;
+package spring.security.jwt.constant;
 
 /**
  * SecurityConstants
@@ -51,7 +51,7 @@ public final class SecurityConstants {
     public static final long EXPIRATION_TIME = 60 * 60 * 2L;
 
     /**
-     * 当 Remember 是 true 时，token 有效时间 2 小时
+     * 当 Remember 是 true 时，token 有效时间 7 天
      */
     public static final long EXPIRATION_REMEMBER_TIME = 60 * 60 * 24 * 7L;
 

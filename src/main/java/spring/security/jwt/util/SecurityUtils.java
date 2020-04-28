@@ -1,4 +1,4 @@
-package spring.security.jwt.utils;
+package spring.security.jwt.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -19,7 +19,7 @@ public final class SecurityUtils {
     }
 
     /**
-     * 从上下文中获取用户信息
+     * 从上下文中获取当前登录的用户信息
      */
     public static Optional<String> getCurrentUserLogin() {
         // 获取上下文对象

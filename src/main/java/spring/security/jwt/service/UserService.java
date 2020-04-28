@@ -1,14 +1,19 @@
 package spring.security.jwt.service;
 
 import spring.security.jwt.entity.User;
+// import spring.security.jwt.repository.UserRepository;
+import spring.security.jwt.entity.UserRole;
 import spring.security.jwt.repository.UserRepository;
-import spring.security.jwt.service.dto.UserDTO;
+import spring.security.jwt.dto.UserRegisterDTO;
+import spring.security.jwt.repository.UserRoleRepository;
 import spring.security.jwt.service.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * UserService
@@ -24,14 +29,24 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public void register(UserDTO dto) {
-        User user = userMapper.convertToUserDTO(dto);
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
+    public void register(UserRegisterDTO dto) {
+        User user = userMapper.convertOfUserRegisterDTO(dto);
         userRepository.save(user);
     }
 
-    public User getUserByName(String username, String password) {
-        Optional<User> usernameOptional = userRepository.findByUsernameAndPasssword(username, password);
-        return usernameOptional
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public User getUserByName(String userName) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findByUserName(userName);
+        return userOptional
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with userName: " + userName));
+    }
+
+    public List<String> listUserRoles(String userName) {
+        return userRoleRepository.findByUserName(userName)
+                .stream()
+                .map(UserRole::getRole)
+                .collect(Collectors.toList());
     }
 }

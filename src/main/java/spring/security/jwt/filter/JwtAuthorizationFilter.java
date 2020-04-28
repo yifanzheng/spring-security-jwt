@@ -1,7 +1,14 @@
 package spring.security.jwt.filter;
 
-import spring.security.jwt.constants.SecurityConstants;
-import spring.security.jwt.utils.JwtUtils;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.CollectionUtils;
+import spring.security.jwt.SpringSecurityContextHelper;
+import spring.security.jwt.constant.UserRoleConstants;
+import spring.security.jwt.constant.SecurityConstants;
+import spring.security.jwt.service.UserService;
+import spring.security.jwt.util.JwtUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -21,60 +28,75 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * JwtAuthorizationFilter 用户请求授权过滤器
  *
  * <p>
- * 用于处理所有 HTTP 请求，并检查是否存在带有正确 token 的 Authorization 标头。
+ * 提供请求授权功能。用于处理所有 HTTP 请求，并检查是否存在带有正确 token 的 Authorization 标头。
  * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring 的安全上下文中，并授权此次请求访问资源。</p>
  *
  * @author star
  */
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
+    private UserService userService;
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
+        this.userService = SpringSecurityContextHelper.getBean(UserService.class);
     }
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+        // 从 HTTP 请求中获取 token
+        String token = this.getTokenFromHttpRequest(request);
+        // 验证 token 是否有效
+        if (StringUtils.isNotEmpty(token) && JwtUtils.validateToken(token)) {
+            // 获取认证信息
+            Authentication authentication = this.getAuthentication(token);
+            // 将认证信息存入 Spring 安全上下文中
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        // 放行请求
+        filterChain.doFilter(request, response);
+
+    }
+
+    /**
+     * 从 HTTP 请求中获取 token
+     *
+     * @param request HTTP 请求
+     * @return 返回 token
+     */
+    private String getTokenFromHttpRequest(HttpServletRequest request) {
         String authorization = request.getHeader(SecurityConstants.TOKEN_HEADER);
-        // 如果请求头中没有 Authorization 的信息则直接放行
         if (authorization == null || !authorization.startsWith(SecurityConstants.TOKEN_PREFIX)) {
-            filterChain.doFilter(request, response);
-            return;
+            return null;
         }
         // 从请求头中获取 token
-        String token = authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
-        // 获取认证信息
-        Authentication authentication = this.getAuthentication(token);
-        // 将认证信息存入 Spring 安全上下文中
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        super.doFilterInternal(request, response, filterChain);
-
+        return authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
     }
 
     private Authentication getAuthentication(String token) {
         // 从 token 信息中获取用户名
-        String username = JwtUtils.getUsername(token);
-        // 获取用户角色
-        List<GrantedAuthority> authorities = JwtUtils.getRoles(token);
-        try {
-            if (StringUtils.isNotEmpty(username)) {
-                return new UsernamePasswordAuthenticationToken(username, null, authorities);
+        String userName = JwtUtils.getUserName(token);
+        if (StringUtils.isNotEmpty(userName)) {
+            // 从数据库中获取用户权限，保证权限的及时性
+            List<String> roles = userService.listUserRoles(userName);
+            // 如果用户角色为空，则默认赋予 ROLE_USER 权限
+            if (CollectionUtils.isEmpty(roles)) {
+                roles = Collections.singletonList(UserRoleConstants.ROLE_USER);
             }
-        } catch (ExpiredJwtException exception) {
-            logger.warn("Request to parse expired JWT : {} failed : {}", token, exception.getMessage());
-        } catch (UnsupportedJwtException exception) {
-            logger.warn("Request to parse unsupported JWT : {} failed : {}", token, exception.getMessage());
-        } catch (MalformedJwtException exception) {
-            logger.warn("Request to parse invalid JWT : {} failed : {}", token, exception.getMessage());
-        } catch (IllegalArgumentException exception) {
-            logger.warn("Request to parse empty or null JWT : {} failed : {}", token, exception.getMessage());
+            // 设置权限
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+            // 认证信息
+            return new UsernamePasswordAuthenticationToken(userName, null, authorities);
         }
         return null;
 

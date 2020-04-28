@@ -21,6 +21,16 @@ import java.util.Collections;
 @Configuration
 public class WebCorsConfiguration implements WebMvcConfigurer {
 
+    /**
+     * 设置swagger为默认主页
+     */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("redirect:/swagger-ui.html");
+        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        WebMvcConfigurer.super.addViewControllers(registry);
+    }
+
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -29,6 +39,7 @@ public class WebCorsConfiguration implements WebMvcConfigurer {
         config.setAllowedOrigins(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
+        // 暴露 header 中的其他属性给客户端应用程序
         config.setExposedHeaders(Arrays.asList(
                 "Authorization", "X-Total-Count", "Link",
                 "Access-Control-Allow-Origin",
