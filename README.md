@@ -11,11 +11,16 @@ Spring Security 是 Spring 全家桶中一个功能强大且高度可定制的�
 Spring Security 对于初学者来说，的确很难上手。于是自己在工作之余对这部分知识进行了学习，并实现了一个简单的项目，主要使用了 Spring Boot 技术集成 Spring Security 和 Spring Data Jpa 技术。这个项目实现的比较简单，还有很多地方需要优化，希望有兴趣的朋友可以一起完善，期待你的 PR。
 
 ### 项目下载
+
 - git clone https://github.com/yifanzheng/spring-security-jwt.git 。
 
 - 配置好 Maven 仓库，使用 IntelliJ IDEA 工具打开项目。
 
 - 在 application.properties 配置文件中将数据库信息改成你自己的。
+
+### 项目核心内容
+
+
 
 ### 测试 API
 
