@@ -24,7 +24,7 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import spring.security.jwt.service.UserService;
 
 /**
- * web 安全配置
+ * Web 安全配置
  *
  * @author star
  **/

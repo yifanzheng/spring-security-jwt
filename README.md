@@ -18,7 +18,153 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 
 - 在 application.properties 配置文件中将数据库信息改成你自己的。
 
-### 项目核心内容
+### 项目核心类说明
+
+**WebCorsConfiguration**  
+
+WebCorsConfiguration 配置类，主要解决 HTTP 请求跨域问题。这里需要注意的是，如果没有将 `Authorization` 头字段暴露给客户端的话，客户端是无法获取到 Token 信息的。
+
+```java
+/**
+ * WebCorsConfiguration 跨域配置
+ *
+ * @author star
+ */
+@Configuration
+public class WebCorsConfiguration implements WebMvcConfigurer {
+
+    /**
+     * 设置swagger为默认主页
+     */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("redirect:/swagger-ui.html");
+        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        WebMvcConfigurer.super.addViewControllers(registry);
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.setAllowedOrigins(Collections.singletonList("*"));
+        config.setAllowedMethods(Collections.singletonList("*"));
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        // 暴露 header 中的其他属性给客户端应用程序
+        config.setExposedHeaders(Arrays.asList(
+                "Authorization", "X-Total-Count", "Link",
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+        ));
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
+}
+```
+
+**WebSecurityConfig**  
+
+WebSecurityConfig 配置类继承了 Spring Security 的 WebSecurityConfigurerAdapter 类。WebSecurityConfigurerAdapter 类提供了默认的安全配置，并允许其他类通过覆盖其方法来扩展它并自定义安全配置。
+
+这里配置了如下内容：
+
+- 忽略某些不需要验证的就能访问的资源路径；
+
+- 设置自定义身份验证组件，用于验证用户的登录信息（用户名和密码）；
+
+- 在 Spring Security 机制中配置需要验证后才能访问的资源路径、不需要验证就可以访问的资源路径以及指定某些资源只能被特定角色访问。
+
+- 配置请求权限认证异常时的处理类；
+
+- 将自定义的 `JwtAuthenticationFilter` 和 `JwtAuthorizationFilter` 两个过滤器添加到 Spring Security 机制中。
+
+
+
+```java
+/**
+ * Web 安全配置
+ *
+ * @author star
+ **/
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@Import(SecurityProblemSupport.class)
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private CorsFilter corsFilter;
+
+    @Autowired
+    private UserService userService;
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .antMatchers("/app/**/*.{js,html}")
+                .antMatchers("/v2/api-docs/**")
+                .antMatchers("/webjars/springfox-swagger-ui/**")
+                .antMatchers("/swagger-resources/**")
+                .antMatchers("/i18n/**")
+                .antMatchers("/content/**")
+                .antMatchers("/swagger-ui.html")
+                .antMatchers("/test/**");
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
+        // 设置自定义身份验证组件，用于从数据库中验证用户登录信息（用户名和密码）
+        authenticationManagerBuilder.authenticationProvider(new CustomAuthenticationProvider());
+    }
+
+    /**
+     * 定义安全策略，设置 HTTP 访问规则
+     */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling()
+                // 当用户无权访问资源时发送 401 响应
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                // 当用户访问资源因权限不足时发送 403 响应
+                .accessDeniedHandler(new AccessDeniedHandlerImpl())
+             .and()
+                // 禁用 CSRF
+                .csrf().disable()
+                .headers().frameOptions().disable()
+             .and()
+                .authorizeRequests()
+                 // 指定路径下的资源需要进行验证后才能访问
+                .antMatchers("/").permitAll()
+                .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
+                .antMatchers("/api/users/register").permitAll()
+                // 只允许管理员访问
+                .antMatchers("/api/users/detail").hasRole("ADMIN")
+                // 其他请求需验证
+                .anyRequest().authenticated()
+             .and()
+                // 添加用户登录验证过滤器，将登录请求交给此过滤器处理
+                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                // 不需要 session（不创建会话）
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+             .and()
+               .apply(securityConfigurationAdapter());
+        super.configure(http);
+    }
+
+    private JwtConfigurer securityConfigurationAdapter() throws Exception{
+        return new JwtConfigurer(new JwtAuthorizationFilter(authenticationManager()));
+    }
+}
+```
+
+
+****
+
 
 
 
