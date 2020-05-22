@@ -1,26 +1,19 @@
 package spring.security.jwt.filter;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.util.CollectionUtils;
-import spring.security.jwt.SpringSecurityContextHelper;
-import spring.security.jwt.constant.UserRoleConstants;
-import spring.security.jwt.constant.SecurityConstants;
-import spring.security.jwt.service.UserService;
-import spring.security.jwt.util.JwtUtils;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.CollectionUtils;
+import spring.security.jwt.SpringSecurityContextHelper;
+import spring.security.jwt.constant.SecurityConstants;
+import spring.security.jwt.constant.UserRoleConstants;
+import spring.security.jwt.service.UserService;
+import spring.security.jwt.util.JwtUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -52,6 +45,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("111");
         // 从 HTTP 请求中获取 token
         String token = this.getTokenFromHttpRequest(request);
         // 验证 token 是否有效

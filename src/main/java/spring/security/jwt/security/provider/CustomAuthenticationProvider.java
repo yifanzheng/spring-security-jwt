@@ -37,6 +37,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     }
     @Override
     public Authentication authenticate(Authentication authentication) throws BadCredentialsException, UsernameNotFoundException {
+        System.out.println("333");
         // 获取验证信息中的用户名和密码 （即登录请求中的用户名和密码）
         String userName = authentication.getName();
         String password = authentication.getCredentials().toString();
