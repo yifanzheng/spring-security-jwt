@@ -162,7 +162,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 **CustomAuthenticationProvider**
 
-CustomAuthenticationProvider 自定义用户身份验证组件类，它用于验证用户登录信息是否正确。
+CustomAuthenticationProvider 自定义用户身份验证组件类，它用于验证用户登录信息是否正确。需要将其配置到 Spring Sercurity 机制中才能使用。
 
 ```java
 /**
@@ -218,12 +218,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 **JwtAuthenticationFilter**
 
 JwtAuthenticationFilter 用户登录验证过滤器，主要配合 `CustomAuthenticationProvider` 对用户登录请求进行验证，检查登录名和登录密码。如果验证成功，则生成 token 返回。
-
-此过滤器继承了 `UsernamePasswordAuthenticationFilter` 类，并重写三个方法：
-
-- attemptAuthentication(): 此方法用于验证用户登录信息；
-
-- 
 
 ```java
 /**
@@ -321,10 +315,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 }
 ```
+此过滤器继承了 `UsernamePasswordAuthenticationFilter` 类，并重写了三个方法：
+
+- `attemptAuthentication`: 此方法用于验证用户登录信息；
+
+- `successfulAuthentication`: 此方法在用户验证成功后会调用；
+
+- `unsuccessfulAuthentication`: 此方法在用户验证失败后会调用。
+
+同时，通过 `super.setFilterProcessesUrl(SecurityConstants.AUTH_LOGIN_URL)` 方法重新指定需要进行验证的登录请求。
+
+当登录请求进入此过滤器时，会先进入 `attemptAuthentication` 方法，通过此方法从登录请求中获取用户名和密码，并使用`authenticationManager.authenticate(authenticate)` 对用户信息进行认证，当执行此方法后会进入 `CustomAuthenticationProvider` 组件并调用 `authenticate(Authentication authentication)` 方法进行验证。如果验证成功后会返回一个 Authentication 对象（它里面包含了用户的完整信息，如角色权限），然后会去调用 `successfulAuthentication` 方法；如果验证失败，就会去调用 `unsuccessfulAuthentication` 方法。
+
+至此，整个验证过程就结束了。
 
 **JwtAuthorizationFilter**
 
-JwtAuthorizationFilter 
+JwtAuthorizationFilter 用户请求授权过滤器，用于从用户请求中获取 token 信息，并对其进行验证，同时加载与 token 相关联的用户身份认证信息，并添加到 Spring Security 上下文中。
 
 ```java
 /**
@@ -332,7 +339,7 @@ JwtAuthorizationFilter
  *
  * <p>
  * 提供请求授权功能。用于处理所有 HTTP 请求，并检查是否存在带有正确 token 的 Authorization 标头。
- * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring 的安全上下文中，并授权此次请求访问资源。</p>
+ * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring Security 上下文中，并授权此次请求访问资源。</p>
  *
  * @author star
  */
@@ -398,7 +405,109 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 }
 ```
 
+**所有的用户请求**都会经过此过滤器，当请求进入过滤器后会经历如下步骤：
 
+- 首先，从请求中获取 token 信息，并检查 token 的有效性。
+
+- 如果 token 有效，则解析 token 获取用户名，然后使用用户名从数据库中获取用户角色信息，并在 Spring Security 的上下文中设置身份验证。
+
+- 如果 token 无效或请求不带 token 信息，则直接放行。
+
+特别说明，这里用户的角色信息，是从数据库中重新获取的。其实，这里也可以换成从 token 信息中解析出用户角色，这样可以避免直接访问数据库。
+
+但是，直接从数据库获取用户信息也是很有帮助的。例如，如果用户角色已更改，则可能要禁止使用此 token 进行访问。
+
+
+**JwtUtils**
+
+JwtUtils 工具类，在用户登录成功后，主要用于生成 token，并验证用户请求中发送的 token。
+
+```java
+/**
+ * Jwt 工具类，用于生成、解析与验证 token
+ *
+ * @author star
+ **/
+public final class JwtUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+
+    private static final byte[] secretKey = DatatypeConverter.parseBase64Binary(SecurityConstants.JWT_SECRET_KEY);
+
+    private JwtUtils() {
+        throw new IllegalStateException("Cannot create instance of static util class");
+    }
+
+    /**
+     * 根据用户名生成 token
+     *
+     * @param userName   用户名
+     * @param roles      用户角色
+     * @param isRemember 是否记住我
+     * @return 返回生成的 token
+     */
+    public static String generateToken(String userName, List<String> roles, boolean isRemember) {
+        byte[] jwtSecretKey = DatatypeConverter.parseBase64Binary(SecurityConstants.JWT_SECRET_KEY);
+        // 过期时间
+        long expiration = isRemember ? SecurityConstants.EXPIRATION_REMEMBER_TIME : SecurityConstants.EXPIRATION_TIME;
+        // 生成 token
+        String token = Jwts.builder()
+                // 生成签证信息
+                .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)
+                .signWith(Keys.hmacShaKeyFor(jwtSecretKey), SignatureAlgorithm.HS256)
+                .setSubject(userName)
+                .claim(SecurityConstants.TOKEN_ROLE_CLAIM, roles)
+                .setIssuer(SecurityConstants.TOKEN_ISSUER)
+                .setIssuedAt(new Date())
+                .setAudience(SecurityConstants.TOKEN_AUDIENCE)
+                // 设置有效时间
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
+                .compact();
+        // jwt 前面一般都会加 Bearer，在请求头里加入 Authorization，并加上 Bearer 标注
+        return SecurityConstants.TOKEN_PREFIX + token;
+    }
+
+    /**
+     * 验证 token，返回结果
+     *
+     * <p>
+     * 如果解析失败，说明 token 是无效的
+     */
+    public static boolean validateToken(String token) {
+        if (StringUtils.isEmpty(token)) {
+            throw new RuntimeException("Miss token");
+        }
+        try {
+            Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            logger.warn("Request to parse expired JWT : {} failed : {}", token, e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.warn("Request to parse unsupported JWT : {} failed : {}", token, e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.warn("Request to parse invalid JWT : {} failed : {}", token, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.warn("Request to parse empty or null JWT : {} failed : {}", token, e.getMessage());
+        }
+        return false;
+    }
+
+    public static String getUserName(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+}
+```
+
+### 请求认证流程说明
+
+本项目中出现了两个过滤器，分别是 `JwtAuthenticationFilter` 和 `JwtAuthorizationFilter`。当用户发起请求时，都会先进入 `JwtAuthorizationFilter` 过滤器。如果请求是登录请求，又会进入 `JwtAuthorizationFilter` 过滤器。也就是说，只有是指定的登录请求才会进入 `JwtAuthorizationFilter` 过滤器。通过过滤器后，就进入 Spring Security 机制中。
 
 
 ### 测试 API

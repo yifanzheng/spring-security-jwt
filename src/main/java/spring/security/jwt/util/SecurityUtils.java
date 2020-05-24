@@ -10,6 +10,9 @@ import java.util.Optional;
 /**
  * SecurityUtils
  *
+ * <p>
+ * 用于获取当前登录的用户名
+ *
  * @author star
  **/
 public final class SecurityUtils {

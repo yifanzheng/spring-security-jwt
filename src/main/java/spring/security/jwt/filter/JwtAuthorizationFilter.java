@@ -45,7 +45,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("111");
         // 从 HTTP 请求中获取 token
         String token = this.getTokenFromHttpRequest(request);
         // 验证 token 是否有效

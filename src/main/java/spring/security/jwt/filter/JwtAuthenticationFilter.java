@@ -56,7 +56,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
         try {
-            System.out.println("222");
             // 获取用户登录信息，JSON 反序列化成 UserDTO 对象
             UserLoginDTO loginUser = new ObjectMapper().readValue(request.getInputStream(), UserLoginDTO.class);
             rememberMeLocal.set(loginUser.getRememberMe());

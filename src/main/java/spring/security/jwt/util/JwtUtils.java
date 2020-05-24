@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Jwt 工具类，用于生成和解析 token
+ * Jwt 工具类，用于生成、解析与验证 token
  *
  * @author star
  **/
@@ -32,7 +32,7 @@ public final class JwtUtils {
     }
 
     /**
-     * 根据用户名生成 token
+     * 根据用户名，用户角色生成 token
      *
      * @param userName   用户名
      * @param roles      用户角色
@@ -61,10 +61,13 @@ public final class JwtUtils {
     }
 
     /**
-     * 验证 token，返回结果
+     * 验证 token 是否有效
      *
      * <p>
      * 如果解析失败，说明 token 是无效的
+     *
+     * @param token token 信息
+     * @return 如果返回 true，说明 token 有效
      */
     public static boolean validateToken(String token) {
         if (StringUtils.isEmpty(token)) {
@@ -87,6 +90,12 @@ public final class JwtUtils {
         return false;
     }
 
+    /**
+     * 从 token 信息中获取用户名
+     *
+     * @param token token
+     * @return 返回用户名
+     */
     public static String getUserName(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
