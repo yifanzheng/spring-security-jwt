@@ -64,7 +64,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             // 这里返回 Authentication 后会通过我们自定义的 {@see CustomAuthenticationProvider} 进行验证
             return this.authenticationManager.authenticate(authentication);
         } catch (IOException e) {
-            e.printStackTrace();
             return null;
         }
 
@@ -117,7 +116,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             response.sendError(HttpServletResponse.SC_NOT_FOUND, authenticationException.getMessage());
             return;
         }
-
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authenticationException.getMessage());
     }
 }

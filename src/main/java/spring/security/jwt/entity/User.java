@@ -20,7 +20,7 @@ public class User extends AbstractAuditingEntity {
     @Column(name = "user_name", columnDefinition="varchar(15)", nullable = false, unique = true)
     private String userName;
 
-    @Column(name = "password", columnDefinition = "varchar(20)", nullable = false)
+    @Column(name = "password", columnDefinition = "varchar(68)", nullable = false)
     private String password;
 
     @Column(name = "email", columnDefinition = "varchar(40)", nullable = false, unique = true)

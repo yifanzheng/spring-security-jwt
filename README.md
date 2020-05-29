@@ -98,6 +98,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserService userService;
 
+    /**
+     * 使用 Spring Security 推荐的加密方式进行登录密码的加密
+     */
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+
+     /**
+      * 此方法配置的资源路径不会进入 Spring Security 机制进行验证
+      */
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
@@ -115,7 +127,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
         // 设置自定义身份验证组件，用于从数据库中验证用户登录信息（用户名和密码）
-        authenticationManagerBuilder.authenticationProvider(new CustomAuthenticationProvider());
+        CustomAuthenticationProvider authenticationProvider = new CustomAuthenticationProvider(bCryptPasswordEncoder());
+        authenticationManagerBuilder.authenticationProvider(authenticationProvider);
     }
 
     /**
@@ -166,7 +179,7 @@ CustomAuthenticationProvider 自定义用户身份验证组件类，它用于验
 
 ```java
 /**
- * CustomAuthenticationProvider 自定义用户身份验证组件类
+ * CustomAuthenticationProvider 自定义用户身份验证组件
  *
  * <p>
  * 提供用户登录密码验证功能。根据用户名从数据库中取出用户信息，进行密码验证，验证通过则赋予用户相应权限。
@@ -177,10 +190,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
 
-    public CustomAuthenticationProvider() {
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public CustomAuthenticationProvider(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userService = SpringSecurityContextHelper.getBean(UserService.class);
     }
+
     @Override
     public Authentication authenticate(Authentication authentication) throws BadCredentialsException, UsernameNotFoundException {
         // 获取验证信息中的用户名和密码 （即登录请求中的用户名和密码）
@@ -189,7 +205,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         // 根据登录名获取用户信息
         User user = userService.getUserByName(userName);
         // 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
-        if (user != null && Objects.equals(user.getPassword(), password)) {
+        if (user != null && this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
             List<String> roles = userService.listUserRoles(userName);
             // 如果用户角色为空，则默认赋予 ROLE_USER 权限
             if (CollectionUtils.isEmpty(roles)) {

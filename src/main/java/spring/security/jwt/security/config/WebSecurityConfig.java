@@ -1,6 +1,8 @@
 package spring.security.jwt.security.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import spring.security.jwt.constant.SecurityConstants;
@@ -40,6 +42,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserService userService;
 
+    /**
+     * 使用 Spring Security 推荐的加密方式进行登录密码的加密
+     */
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * 此方法配置的资源路径不会进入 Spring Security 机制进行验证
+     */
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
@@ -57,7 +70,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
         // 设置自定义身份验证组件，用于从数据库中验证用户登录信息（用户名和密码）
-        authenticationManagerBuilder.authenticationProvider(new CustomAuthenticationProvider());
+        CustomAuthenticationProvider authenticationProvider = new CustomAuthenticationProvider(bCryptPasswordEncoder());
+        authenticationManagerBuilder.authenticationProvider(authenticationProvider);
     }
 
     /**
@@ -80,6 +94,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                  // 指定路径下的资源需要进行验证后才能访问
                 .antMatchers("/").permitAll()
+                // 配置登录地址
                 .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
                 .antMatchers("/api/users/register").permitAll()
                 // 只允许管理员访问

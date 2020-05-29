@@ -1,6 +1,7 @@
 package spring.security.jwt.security.provider;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.CollectionUtils;
 import spring.security.jwt.SpringSecurityContextHelper;
 import spring.security.jwt.constant.UserRoleConstants;
@@ -31,8 +32,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserService userService;
 
-    public CustomAuthenticationProvider() {
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public CustomAuthenticationProvider(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userService = SpringSecurityContextHelper.getBean(UserService.class);
     }
 
@@ -44,7 +47,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         // 根据登录名获取用户信息
         User user = userService.getUserByName(userName);
         // 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
-        if (user != null && Objects.equals(user.getPassword(), password)) {
+        if (user != null && this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
             List<String> roles = userService.listUserRoles(userName);
             // 如果用户角色为空，则默认赋予 ROLE_USER 权限
             if (CollectionUtils.isEmpty(roles)) {
