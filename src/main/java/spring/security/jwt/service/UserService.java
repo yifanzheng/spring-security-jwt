@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import spring.security.jwt.entity.User;
-// import spring.security.jwt.repository.UserRepository;
 import spring.security.jwt.entity.UserRole;
 import spring.security.jwt.repository.UserRepository;
 import spring.security.jwt.dto.UserRegisterDTO;
