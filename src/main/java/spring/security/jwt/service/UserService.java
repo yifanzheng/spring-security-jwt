@@ -2,6 +2,7 @@ package spring.security.jwt.service;
 
 import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import spring.security.jwt.entity.User;
 // import spring.security.jwt.repository.UserRepository;
 import spring.security.jwt.entity.UserRole;
@@ -37,12 +38,12 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Transactional
     public void register(UserRegisterDTO dto) {
         // 将登录密码进行加密
         String cryptPassword = bCryptPasswordEncoder.encode(dto.getPassword());
         User user = userMapper.convertOfUserRegisterDTO(dto);
         user.setPassword(cryptPassword);
-        System.out.println(cryptPassword.length());
 
         userRepository.save(user);
     }
