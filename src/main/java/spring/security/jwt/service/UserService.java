@@ -3,7 +3,6 @@ package spring.security.jwt.service;
 import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import spring.security.jwt.entity.User;
-// import spring.security.jwt.repository.UserRepository;
 import spring.security.jwt.entity.UserRole;
 import spring.security.jwt.repository.UserRepository;
 import spring.security.jwt.dto.UserRegisterDTO;
@@ -42,7 +41,6 @@ public class UserService {
         String cryptPassword = bCryptPasswordEncoder.encode(dto.getPassword());
         User user = userMapper.convertOfUserRegisterDTO(dto);
         user.setPassword(cryptPassword);
-        System.out.println(cryptPassword.length());
 
         userRepository.save(user);
     }
