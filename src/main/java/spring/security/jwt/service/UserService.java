@@ -2,6 +2,7 @@ package spring.security.jwt.service;
 
 import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import spring.security.jwt.entity.User;
 import spring.security.jwt.entity.UserRole;
