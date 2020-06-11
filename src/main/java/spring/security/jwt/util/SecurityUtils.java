@@ -1,11 +1,20 @@
 package spring.security.jwt.util;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.CollectionUtils;
+import spring.security.jwt.constant.UserRoleConstants;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * SecurityUtils
@@ -41,6 +50,23 @@ public final class SecurityUtils {
                     }
                     return null;
                 });
+
+    }
+
+    public static Authentication generateAuthentication(String userName, List<String> roles) {
+            if (StringUtils.isNotEmpty(userName)) {
+                // 如果用户角色为空，则默认赋予 ROLE_USER 权限
+                if (CollectionUtils.isEmpty(roles)) {
+                    roles = Collections.singletonList(UserRoleConstants.ROLE_USER);
+                }
+                // 设置权限
+                List<GrantedAuthority> authorities = roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+                // 认证信息
+                return new UsernamePasswordAuthenticationToken(userName, null, authorities);
+            }
+            return null;
 
     }
 
