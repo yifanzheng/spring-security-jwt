@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.zalando.problem.DefaultProblem;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  * 将服务器端异常处理为客户端友好的 JSON 格式。
  */
 @ControllerAdvice
+@ResponseBody
 public class GlobalExceptionHandler implements ProblemHandling {
 
     @Override
@@ -83,11 +85,20 @@ public class GlobalExceptionHandler implements ProblemHandling {
         return create(ex, problem, request);
     }
 
-    @ExceptionHandler({NoSuchElementException.class, UsernameNotFoundException.class})
+    @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Problem> handleNoSuchElementException(NoSuchElementException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()
                 .withStatus(Status.NOT_FOUND)
                 .with("message", ErrorConstants.DEFAULT_TYPE)
+                .build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Problem> handleUsernameNotFoundException(UsernameNotFoundException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder()
+                .withStatus(Status.NOT_FOUND)
+                .with("message", ex.getMessage())
                 .build();
         return create(ex, problem, request);
     }

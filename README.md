@@ -18,6 +18,19 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 
 - 在 application.properties 配置文件中将数据库信息改成你自己的。
 
+### 权限控制
+
+本 Demo 权限控制采用 RBAC 思想。简单地说，一个用户拥有若干角色，用户与角色形成多对多关系。
+
+**模型**
+
+![permission_model](./asset/imgs/permission_model.png)
+
+**数据交互**
+
+用户登录 -> 后端验证登录并返回 token -> 前端带上 token 请求后端数据 -> 后端返回数据。
+
+
 ### 项目核心类说明
 
 **WebCorsConfiguration**  

@@ -1,15 +1,14 @@
 package spring.security.jwt.filter;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.StringUtils;
 import spring.security.jwt.SpringSecurityContextHelper;
 import spring.security.jwt.constant.SecurityConstants;
 import spring.security.jwt.service.UserService;
 import spring.security.jwt.util.JwtUtils;
-import spring.security.jwt.util.SecurityUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * JwtAuthorizationFilter 用户请求授权过滤器
@@ -42,12 +40,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // 从 HTTP 请求中获取 token
         String token = this.getTokenFromHttpRequest(request);
         // 验证 token 是否有效
-        if (StringUtils.isNotEmpty(token) && JwtUtils.validateToken(token)) {
-            // 从 token 信息中获取用户名
-            String userName = JwtUtils.getUserName(token);
-            List<String> roles = userService.listUserRoles(userName);
+        if (StringUtils.hasText(token) && JwtUtils.validateToken(token)) {
             // 获取认证信息
-            Authentication authentication = SecurityUtils.generateAuthentication(userName, roles);
+            Authentication authentication = JwtUtils.getAuthentication(token);
             // 将认证信息存入 Spring 安全上下文中
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -67,7 +62,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (authorization == null || !authorization.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             return null;
         }
-        // 从请求头中获取 token
+        // 去掉 token 前缀
         return authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
     }
 

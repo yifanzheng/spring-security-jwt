@@ -1,29 +1,25 @@
 package spring.security.jwt.security.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import spring.security.jwt.constant.SecurityConstants;
-import spring.security.jwt.filter.JwtAuthenticationFilter;
-import spring.security.jwt.filter.JwtAuthorizationFilter;
-import spring.security.jwt.security.provider.CustomAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
-import spring.security.jwt.service.UserService;
+import spring.security.jwt.constant.SecurityConstants;
+import spring.security.jwt.filter.JwtAuthorizationFilter;
 
 /**
  * Web 安全配置
@@ -89,6 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .headers().frameOptions().disable()
              .and()
+                .logout().logoutUrl("/auth/login").and()
                 .authorizeRequests()
                  // 指定路径下的资源需要进行验证后才能访问
                 .antMatchers("/").permitAll()
@@ -103,7 +100,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // TODO 添加用户登录验证过滤器，将登录请求交给此过滤器处理，如果将登录接口暴露在 Controller 层，则注释这行
                //  .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 // 不需要 session（不创建会话）
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
              .and()
                .apply(securityConfigurationAdapter());
         super.configure(http);

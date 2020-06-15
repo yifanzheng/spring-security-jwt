@@ -1,19 +1,17 @@
 package spring.security.jwt.util;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
-import io.jsonwebtoken.security.WeakKeyException;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spring.security.jwt.constant.SecurityConstants;
-import io.jsonwebtoken.security.Keys;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import spring.security.jwt.constant.SecurityConstants;
+import spring.security.jwt.constant.UserRoleConstants;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,8 +54,7 @@ public final class JwtUtils {
                 // 设置有效时间
                 .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
                 .compact();
-        // jwt 前面一般都会加 Bearer，在请求头里加入 Authorization，并加上 Bearer 标注
-        return SecurityConstants.TOKEN_PREFIX + token;
+        return token;
     }
 
     /**
@@ -70,13 +67,8 @@ public final class JwtUtils {
      * @return 如果返回 true，说明 token 有效
      */
     public static boolean validateToken(String token) {
-        if (StringUtils.isEmpty(token)) {
-            throw new RuntimeException("Miss token");
-        }
         try {
-            Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token);
+            getTokenBody(token);
             return true;
         } catch (ExpiredJwtException e) {
             logger.warn("Request to parse expired JWT : {} failed : {}", token, e.getMessage());
@@ -91,17 +83,33 @@ public final class JwtUtils {
     }
 
     /**
-     * 从 token 信息中获取用户名
+     * 根据 token 获取用户认证信息
      *
-     * @param token token
-     * @return 返回用户名
+     * @param token token 信息
+     * @return 返回用户认证信息
      */
-    public static String getUserName(String token) {
+    public static Authentication getAuthentication(String token) {
+        Claims claims = getTokenBody(token);
+        // 获取用户角色字符串
+        Object authoritiesStr = claims.get(SecurityConstants.TOKEN_ROLE_CLAIM);
+        List<SimpleGrantedAuthority> authorities =
+                Objects.isNull(authoritiesStr) ? Collections.singletonList(new SimpleGrantedAuthority(UserRoleConstants.ROLE_USER)) :
+                        Arrays.stream(authoritiesStr.toString().split(","))
+                                .map(SimpleGrantedAuthority::new)
+                                .collect(Collectors.toList());
+
+        // 获取用户名
+        String userName = claims.getSubject();
+
+        return new UsernamePasswordAuthenticationToken(userName, token, authorities);
+
+    }
+
+    private static Claims getTokenBody(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
 }

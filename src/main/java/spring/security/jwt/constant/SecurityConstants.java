@@ -14,7 +14,7 @@ public final class SecurityConstants {
     /**
      * 用于登录的 url
      */
-    public static final String AUTH_LOGIN_URL = "/api/users/login";
+    public static final String AUTH_LOGIN_URL = "/api/auth/login";
 
 
     /**
