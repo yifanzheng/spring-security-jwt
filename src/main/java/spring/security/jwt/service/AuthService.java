@@ -2,15 +2,16 @@ package spring.security.jwt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import spring.security.jwt.constant.UserRoleConstants;
-import spring.security.jwt.dto.JwtUserDTO;
 import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserLoginDTO;
 import spring.security.jwt.entity.User;
+import spring.security.jwt.security.JwtUser;
 import spring.security.jwt.util.JwtUtils;
 
 import java.util.Collections;
@@ -35,7 +36,7 @@ public class AuthService {
      *
      * @param userLogin 用户登录信息
      */
-    public JwtUserDTO authLogin(UserLoginDTO userLogin) {
+    public JwtUser authLogin(UserLoginDTO userLogin) {
         String userName = userLogin.getUserName();
         String password = userLogin.getPassword();
 
@@ -51,17 +52,17 @@ public class AuthService {
             // 生成 token
             String token = JwtUtils.generateToken(userName, roles, userLogin.getRememberMe());
 
+            // 认证成功后，设置认证信息到 Spring Security 上下文中
+            Authentication authentication = JwtUtils.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             // 用户信息
             UserDTO userDTO = new UserDTO();
             userDTO.setUserName(userName);
             userDTO.setEmail(user.getEmail());
             userDTO.setRoles(roles);
 
-            JwtUserDTO jwtUserDTO = new JwtUserDTO();
-            jwtUserDTO.setUser(userDTO);
-            jwtUserDTO.setToken(token);
-
-            return jwtUserDTO;
+            return new JwtUser(token, userDTO);
 
         }
         throw new BadCredentialsException("The userName or password error.");

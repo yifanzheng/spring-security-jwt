@@ -26,6 +26,10 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 
 ![permission_model](./asset/imgs/permission_model.png)
 
+**数据表设计**
+
+
+
 **数据交互**
 
 用户登录 -> 后端验证登录并返回 token -> 前端携带 token 请求后端数据 -> 后端返回数据。

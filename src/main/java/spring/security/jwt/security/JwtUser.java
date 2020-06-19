@@ -1,4 +1,6 @@
-package spring.security.jwt.dto;
+package spring.security.jwt.security;
+
+import spring.security.jwt.dto.UserDTO;
 
 /**
  *
@@ -6,11 +8,16 @@ package spring.security.jwt.dto;
  *
  * @author star
  */
-public class JwtUserDTO {
+public class JwtUser {
 
     private UserDTO user;
 
     private String token;
+
+    public JwtUser(String token, UserDTO user) {
+        this.user = user;
+        this.token = token;
+    }
 
     public UserDTO getUser() {
         return user;
