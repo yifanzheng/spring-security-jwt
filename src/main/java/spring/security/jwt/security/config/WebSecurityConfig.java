@@ -85,15 +85,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .headers().frameOptions().disable()
              .and()
-                .logout().logoutUrl("/auth/login").and()
+                .logout().logoutUrl("/auth/logout").and()
                 .authorizeRequests()
                  // 指定路径下的资源需要进行验证后才能访问
                 .antMatchers("/").permitAll()
                 // 配置登录地址
                 .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
                 .antMatchers("/api/users/register").permitAll()
-                // 只允许管理员访问
-                .antMatchers("/api/users/detail").hasRole("ADMIN")
                 // 其他请求需验证
                 .anyRequest().authenticated()
              .and()

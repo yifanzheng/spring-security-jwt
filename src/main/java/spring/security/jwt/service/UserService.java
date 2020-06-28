@@ -1,18 +1,15 @@
 package spring.security.jwt.service;
 
-import io.swagger.annotations.ApiImplicitParam;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.entity.User;
 import spring.security.jwt.entity.UserRole;
 import spring.security.jwt.repository.UserRepository;
-import spring.security.jwt.dto.UserRegisterDTO;
-import spring.security.jwt.repository.UserRoleRepository;
 import spring.security.jwt.service.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +30,10 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserRoleRepository userRoleRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private UserRoleService userRoleService;
 
     @Transactional
     public void register(UserRegisterDTO dto) {
@@ -55,9 +52,17 @@ public class UserService {
     }
 
     public List<String> listUserRoles(String userName) {
-        return userRoleRepository.findByUserName(userName)
+        return userRoleService.listUserRoles(userName)
                 .stream()
                 .map(UserRole::getRole)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(String userName) {
+        // 删除用户角色信息
+        userRoleService.deleteByUserName(userName);
+        // 删除用户基本信息
+        userRepository.deleteByUserName(userName);
     }
 }

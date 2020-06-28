@@ -573,7 +573,7 @@ public final class JwtUtils {
 
 - 增加 Swagger UI，方便查看项目接口。
 - 增加全局异常。
-- 增加 JPA 审计功能，数据表审计信息。
+- 增加 JPA 审计功能，完善数据表审计信息。
 - 在 Controller 层中暴露用户登录接口(/api/auth/login)。
 - 完善项目详解内容。
 

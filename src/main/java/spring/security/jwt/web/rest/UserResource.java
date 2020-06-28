@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.service.UserService;
@@ -28,10 +29,13 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/detail")
-    @ApiOperation(value = "获取用户详情")
-    public ResponseEntity<Object> getUsersDetail() {
-        return ResponseEntity.ok("Get users detail success.");
+    @DeleteMapping("/{userName}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @ApiOperation(value = "根据用户名删除用户信息")
+    public ResponseEntity<Object> deleteByUserName(@PathVariable("userName") String userName) {
+        userService.delete(userName);
+
+        return ResponseEntity.ok().build();
     }
 
 }

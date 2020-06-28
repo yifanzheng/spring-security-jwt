@@ -3,24 +3,21 @@ package spring.security.jwt.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import spring.security.jwt.constant.SecurityConstants;
-import spring.security.jwt.dto.UserLoginDTO;
-import spring.security.jwt.dto.UserRegisterDTO;
-import spring.security.jwt.util.JwtUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import spring.security.jwt.constant.SecurityConstants;
+import spring.security.jwt.dto.UserLoginDTO;
+import spring.security.jwt.util.JwtUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sound.midi.SoundbankResource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +27,8 @@ import java.util.stream.Collectors;
 /**
  * JwtAuthenticationFilter 用户登录验证过滤器
  *
+ * TODO 本项目已将登录接口暴露在 Controller 层，此过滤器已过时。
+ *
  * <p>
  * 用于验证使用 URL 地址是 {@link SecurityConstants#AUTH_LOGIN_URL} 进行登录的用户请求。
  * 通过检查请求中的用户名和密码参数，并调用 Spring 的身份验证管理器进行验证。
@@ -38,6 +37,7 @@ import java.util.stream.Collectors;
  *
  * @author star
  **/
+@Deprecated
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
