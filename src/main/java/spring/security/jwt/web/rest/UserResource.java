@@ -51,9 +51,4 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/detail")
-    public ResponseEntity<String> get(){
-        return ResponseEntity.ok("String");
-    }
-
 }
