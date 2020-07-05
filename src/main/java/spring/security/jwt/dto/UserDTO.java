@@ -11,6 +11,8 @@ public class UserDTO {
 
     private String userName;
 
+    private String nickName;
+
     private String email;
 
     private List<String> roles;
@@ -21,6 +23,14 @@ public class UserDTO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getEmail() {
