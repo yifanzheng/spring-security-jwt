@@ -17,13 +17,16 @@ public class User extends AbstractAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name", columnDefinition="varchar(15)", nullable = false, unique = true)
+    @Column(name = "user_name", columnDefinition="varchar(20)", nullable = false, unique = true)
     private String userName;
+
+    @Column(name = "nick_name", columnDefinition = "varchar(20)")
+    private String nickName;
 
     @Column(name = "password", columnDefinition = "varchar(68)", nullable = false)
     private String password;
 
-    @Column(name = "email", columnDefinition = "varchar(40)", nullable = false, unique = true)
+    @Column(name = "email", columnDefinition = "varchar(40)", nullable = false)
     private String email;
 
     public Long getId() {
@@ -40,6 +43,14 @@ public class User extends AbstractAuditingEntity {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getPassword() {

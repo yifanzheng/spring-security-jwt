@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -16,6 +17,7 @@ import spring.security.jwt.util.JwtUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 用户认证服务
@@ -41,9 +43,13 @@ public class AuthService {
         String password = userLogin.getPassword();
 
         // 根据登录名获取用户信息
-        User user = userService.getUserByName(userName);
+        Optional<User> userOptional = userService.getUserByName(userName);
+        if (!userOptional.isPresent()) {
+            throw new UsernameNotFoundException("User not found with userName: " + userName);
+        }
+        User user = userOptional.get();
         // 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
-        if (user != null && this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
+        if (this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
             List<String> roles = userService.listUserRoles(userName);
             // 如果用户角色为空，则默认赋予 ROLE_USER 角色
             if (CollectionUtils.isEmpty(roles)) {
@@ -65,7 +71,7 @@ public class AuthService {
             return new JwtUser(token, userDTO);
 
         }
-        throw new BadCredentialsException("The userName or password error.");
+        throw new BadCredentialsException("The user name or password error.");
     }
 
     /**

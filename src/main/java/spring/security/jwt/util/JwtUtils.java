@@ -30,7 +30,7 @@ public final class JwtUtils {
     }
 
     /**
-     * 根据用户名，用户角色生成 token
+     * 根据用户名和用户角色生成 token
      *
      * @param userName   用户名
      * @param roles      用户角色
@@ -91,13 +91,12 @@ public final class JwtUtils {
     public static Authentication getAuthentication(String token) {
         Claims claims = getTokenBody(token);
         // 获取用户角色字符串
-        Object authoritiesStr = claims.get(SecurityConstants.TOKEN_ROLE_CLAIM);
+        List<String> roles = (List<String>)claims.get(SecurityConstants.TOKEN_ROLE_CLAIM);
         List<SimpleGrantedAuthority> authorities =
-                Objects.isNull(authoritiesStr) ? Collections.singletonList(new SimpleGrantedAuthority(UserRoleConstants.ROLE_USER)) :
-                        Arrays.stream(authoritiesStr.toString().split(","))
+                Objects.isNull(roles) ? Collections.singletonList(new SimpleGrantedAuthority(UserRoleConstants.ROLE_USER)) :
+                        roles.stream()
                                 .map(SimpleGrantedAuthority::new)
                                 .collect(Collectors.toList());
-
         // 获取用户名
         String userName = claims.getSubject();
 

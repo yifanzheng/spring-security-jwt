@@ -1,6 +1,5 @@
 package spring.security.jwt.exception;
 
-import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -8,7 +7,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.zalando.problem.DefaultProblem;
@@ -24,7 +22,6 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +31,6 @@ import java.util.stream.Collectors;
  * 将服务器端异常处理为客户端友好的 JSON 格式。
  */
 @ControllerAdvice
-@ResponseBody
 public class GlobalExceptionHandler implements ProblemHandling {
 
     @Override
@@ -85,15 +81,6 @@ public class GlobalExceptionHandler implements ProblemHandling {
         return create(ex, problem, request);
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Problem> handleNoSuchElementException(NoSuchElementException ex, NativeWebRequest request) {
-        Problem problem = Problem.builder()
-                .withStatus(Status.NOT_FOUND)
-                .with("message", ErrorConstants.DEFAULT_TYPE)
-                .build();
-        return create(ex, problem, request);
-    }
-
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Problem> handleUsernameNotFoundException(UsernameNotFoundException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()
@@ -103,18 +90,10 @@ public class GlobalExceptionHandler implements ProblemHandling {
         return create(ex, problem, request);
     }
 
-    @ExceptionHandler(ConcurrencyFailureException.class)
-    public ResponseEntity<Problem> handleConcurrencyFailure(ConcurrencyFailureException ex, NativeWebRequest request) {
-        Problem problem = Problem.builder()
-                .withStatus(Status.CONFLICT)
-                .with("message", ErrorConstants.ERR_CONCURRENCY_FAILURE)
-                .build();
-        return create(ex, problem, request);
-    }
-
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<Problem> handleServiceException(ServiceException ex, NativeWebRequest request) {
         Problem problem = Problem.builder()
+                .withStatus(Status.INTERNAL_SERVER_ERROR)
                 .withDetail(ex.getMessage())
                 .build();
         return create(ex, problem, request);

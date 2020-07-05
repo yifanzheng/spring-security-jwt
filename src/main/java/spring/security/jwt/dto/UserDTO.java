@@ -4,6 +4,8 @@ import java.util.List;
 
 /**
  * UserDTO
+ *
+ * @author star
  */
 public class UserDTO {
 

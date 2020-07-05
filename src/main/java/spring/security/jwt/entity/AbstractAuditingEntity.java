@@ -24,7 +24,7 @@ public abstract class AbstractAuditingEntity implements Serializable {
     private static final long serialVersionUID = -8707034280923250254L;
 
     @CreatedBy
-    @Column(name = "create_by", length = 50, nullable = false)
+    @Column(name = "create_by", length = 210, nullable = false)
     private String createBy;
 
     @CreatedDate
@@ -32,7 +32,7 @@ public abstract class AbstractAuditingEntity implements Serializable {
     private Instant createDate = Instant.now();
 
     @LastModifiedBy
-    @Column(name = "last_modified_by")
+    @Column(name = "last_modified_by", length = 20)
     private String lastModifiedBy;
 
     @LastModifiedDate

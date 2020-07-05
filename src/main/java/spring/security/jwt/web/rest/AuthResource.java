@@ -1,5 +1,6 @@
 package spring.security.jwt.web.rest;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,7 @@ import spring.security.jwt.service.AuthService;
  */
 @RestController
 @RequestMapping("/api/auth")
+@Api(tags = "Auth")
 public class AuthResource {
 
     @Autowired
@@ -32,7 +34,6 @@ public class AuthResource {
     public ResponseEntity<UserDTO> login(@RequestBody UserLoginDTO userLogin) {
         // 用户登录认证
         JwtUser jwtUser = authService.authLogin(userLogin);
-
         // 认证成功后，将 token 存入响应头中返回
         HttpHeaders httpHeaders = new HttpHeaders();
         // 添加 token 前缀 "Bearer "
@@ -43,7 +44,7 @@ public class AuthResource {
     }
 
     @PostMapping("/logout")
-    @ApiOperation(value = "用户登出")
+    @ApiOperation(value = "用户退出登录")
     public ResponseEntity<Void> logout() {
         authService.logout();
         return ResponseEntity.ok().build();

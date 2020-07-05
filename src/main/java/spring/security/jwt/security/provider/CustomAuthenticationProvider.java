@@ -16,6 +16,7 @@ import spring.security.jwt.service.UserService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -46,9 +47,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String userName = authentication.getName();
         String password = authentication.getCredentials().toString();
         // 根据登录名获取用户信息
-        User user = userService.getUserByName(userName);
+        Optional<User> userOptional = userService.getUserByName(userName);
+        if (!userOptional.isPresent()) {
+            throw new UsernameNotFoundException("User not found with userName: " + userName);
+        }
+        User user = userOptional.get();
         // 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
-        if (user != null && this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
+        if (this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
             List<String> roles = userService.listUserRoles(userName);
             // 如果用户角色为空，则默认赋予 ROLE_USER 权限
             if (CollectionUtils.isEmpty(roles)) {

@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
@@ -30,10 +29,13 @@ import spring.security.jwt.filter.JwtAuthorizationFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Import(SecurityProblemSupport.class)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CorsFilter corsFilter;
+
+    @Autowired
+    private SecurityProblemSupport securityProblemSupport;
 
     /**
      * 使用 Spring Security 推荐的加密方式进行登录密码的加密
@@ -52,12 +54,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
                 .antMatchers("/v2/api-docs/**")
+                .antMatchers("/i18n/**")
+                .antMatchers("/test/**")
+                .antMatchers("/content/**")
                 .antMatchers("/webjars/springfox-swagger-ui/**")
                 .antMatchers("/swagger-resources/**")
-                .antMatchers("/i18n/**")
-                .antMatchers("/content/**")
-                .antMatchers("/swagger-ui.html")
-                .antMatchers("/test/**");
+                .antMatchers("/swagger-ui.html");
     }
 
     // TODO 如果将登录接口暴露在 Controller 层，则注释此配置
@@ -79,7 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 当用户无权访问资源时发送 401 响应
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 // 当用户访问资源因权限不足时发送 403 响应
-                .accessDeniedHandler(new AccessDeniedHandlerImpl())
+                .accessDeniedHandler(securityProblemSupport)
              .and()
                 // 禁用 CSRF
                 .csrf().disable()
@@ -91,7 +93,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 // 配置登录地址
                 .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
-                .antMatchers("/api/users/register").permitAll()
+                .antMatchers(HttpMethod.POST,"/api/users/register").permitAll()
                 // 其他请求需验证
                 .anyRequest().authenticated()
              .and()

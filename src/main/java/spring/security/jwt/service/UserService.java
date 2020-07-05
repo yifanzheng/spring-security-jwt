@@ -1,13 +1,16 @@
 package spring.security.jwt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.entity.User;
 import spring.security.jwt.entity.UserRole;
+import spring.security.jwt.exception.AlreadyExistsException;
 import spring.security.jwt.repository.UserRepository;
 import spring.security.jwt.service.mapper.UserMapper;
 
@@ -37,18 +40,47 @@ public class UserService {
 
     @Transactional
     public void register(UserRegisterDTO dto) {
+        // 预检查用户名是否存在
+        Optional<User> userOptional = this.getUserByName(dto.getUserName());
+        if (userOptional.isPresent()) {
+            throw new AlreadyExistsException("Save failed, the user name already exist.");
+        }
+
+        User user = userMapper.convertOfUserRegisterDTO(dto);
         // 将登录密码进行加密
         String cryptPassword = bCryptPasswordEncoder.encode(dto.getPassword());
-        User user = userMapper.convertOfUserRegisterDTO(dto);
         user.setPassword(cryptPassword);
 
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            // 如果预检查没有检查到重复，就利用数据库的完整性检查
+            throw new AlreadyExistsException("Save failed, the user name already exist.");
+
+        }
     }
 
-    public User getUserByName(String userName) throws UsernameNotFoundException {
+    public Optional<User> getUserByName(String userName) {
         Optional<User> userOptional = userRepository.findByUserName(userName);
-        return userOptional
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with userName: " + userName));
+        return userOptional;
+
+    }
+
+    public Optional<UserDTO> getUserInfoByName(String userName) {
+        Optional<User> userOptional = this.getUserByName(userName);
+        if (!userOptional.isPresent()) {
+            throw new UsernameNotFoundException("User not found with user name: " + userName);
+        }
+        // 获取用户角色
+        List<String> roles = this.listUserRoles(userName);
+        User user = userOptional.get();
+        // 设置用户信息
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserName(user.getUserName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setRoles(roles);
+
+        return Optional.of(userDTO);
     }
 
     public List<String> listUserRoles(String userName) {
