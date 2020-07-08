@@ -3,15 +3,12 @@ package spring.security.jwt.web.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.service.UserService;
-
-import java.util.Optional;
 
 /**
  * UserResource
@@ -29,10 +26,9 @@ public class UserResource {
     @GetMapping("/{userName}")
     @ApiOperation(value = "根据用户名获取用户信息")
     public ResponseEntity<UserDTO> getUser(@PathVariable String userName) {
-        Optional<UserDTO> userOptional = userService.getUserInfoByName(userName);
+        UserDTO userDTO = userService.getUserInfoByName(userName);
 
-        return userOptional.map(ResponseEntity::ok)
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/register")

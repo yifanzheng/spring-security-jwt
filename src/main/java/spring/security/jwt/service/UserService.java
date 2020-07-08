@@ -38,7 +38,7 @@ public class UserService {
     @Autowired
     private UserRoleService userRoleService;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void register(UserRegisterDTO dto) {
         // 预检查用户名是否存在
         Optional<User> userOptional = this.getUserByName(dto.getUserName());
@@ -66,7 +66,7 @@ public class UserService {
 
     }
 
-    public Optional<UserDTO> getUserInfoByName(String userName) {
+    public UserDTO getUserInfoByName(String userName) {
         Optional<User> userOptional = this.getUserByName(userName);
         if (!userOptional.isPresent()) {
             throw new UsernameNotFoundException("User not found with user name: " + userName);
@@ -80,7 +80,7 @@ public class UserService {
         userDTO.setEmail(user.getEmail());
         userDTO.setRoles(roles);
 
-        return Optional.of(userDTO);
+        return userDTO;
     }
 
     public List<String> listUserRoles(String userName) {
