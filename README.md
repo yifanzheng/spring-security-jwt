@@ -1,4 +1,5 @@
-## Spring Security JWT 
+# Spring Security With JWT
+> GitHub 源码地址：[https://github.com/yifanzheng/spring-security-jwt](https://github.com/yifanzheng/spring-security-jwt)
 
 ### 概述
 
@@ -23,20 +24,17 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 本 Demo 权限控制采用 RBAC 思想。简单地说，一个用户拥有若干角色，用户与角色形成多对多关系。
 
 **模型**
-
-![permission_model](./asset/imgs/permission_model.png)
+![权限模型](https://img-blog.csdnimg.cn/20200628230812139.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 
 **数据表设计**
 
 用户表与用户角色表是多对多的关系。因为这里比较简单，所以表设计上有点冗余。小伙伴们可以根据实际情况重新设计。
-
-![table_design](asset/imgs/table_design.png)
+![表设计](https://img-blog.csdnimg.cn/2020062823082793.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 
 **数据交互**
 
 用户登录 -> 后端验证登录并返回 token -> 前端携带 token 请求后端数据 -> 后端返回数据。
-
-![data_interaction](./asset/imgs/data_interaction.png)
+![数据交互](https://img-blog.csdnimg.cn/20200628230845973.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 
 ### 项目核心类说明
 
@@ -101,6 +99,7 @@ WebSecurityConfig 配置类继承了 Spring Security 的 WebSecurityConfigurerAd
 - 将自定义的 `JwtAuthenticationFilter` 和 `JwtAuthorizationFilter` 两个过滤器添加到 Spring Security 机制中。
 
 ```java
+
 /**
  * Web 安全配置
  *
@@ -110,13 +109,13 @@ WebSecurityConfig 配置类继承了 Spring Security 的 WebSecurityConfigurerAd
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Import(SecurityProblemSupport.class)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CorsFilter corsFilter;
 
     @Autowired
-    private UserService userService;
+    private SecurityProblemSupport securityProblemSupport;
 
     /**
      * 使用 Spring Security 推荐的加密方式进行登录密码的加密
@@ -126,30 +125,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-
-     /**
-      * 此方法配置的资源路径不会进入 Spring Security 机制进行验证
-      */
+    /**
+     * 此方法配置的资源路径不会进入 Spring Security 机制进行验证
+     */
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .antMatchers("/app/**/*.{js,html}")
                 .antMatchers("/v2/api-docs/**")
+                .antMatchers("/i18n/**")
+                .antMatchers("/test/**")
+                .antMatchers("/content/**")
                 .antMatchers("/webjars/springfox-swagger-ui/**")
                 .antMatchers("/swagger-resources/**")
-                .antMatchers("/i18n/**")
-                .antMatchers("/content/**")
-                .antMatchers("/swagger-ui.html")
-                .antMatchers("/test/**");
+                .antMatchers("/swagger-ui.html");
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
-        // 设置自定义身份验证组件，用于从数据库中验证用户登录信息（用户名和密码）
-        CustomAuthenticationProvider authenticationProvider = new CustomAuthenticationProvider(bCryptPasswordEncoder());
-        authenticationManagerBuilder.authenticationProvider(authenticationProvider);
-    }
+    // TODO 如果将登录接口暴露在 Controller 层，则注释此配置
+    //@Override
+    //protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
+    //    // 设置自定义身份验证组件，用于从数据库中验证用户登录信息（用户名和密码）
+    //    CustomAuthenticationProvider authenticationProvider = new CustomAuthenticationProvider(bCryptPasswordEncoder());
+    //    authenticationManagerBuilder.authenticationProvider(authenticationProvider);
+    //}
 
     /**
      * 定义安全策略，设置 HTTP 访问规则
@@ -162,26 +161,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 当用户无权访问资源时发送 401 响应
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 // 当用户访问资源因权限不足时发送 403 响应
-                .accessDeniedHandler(new AccessDeniedHandlerImpl())
+                .accessDeniedHandler(securityProblemSupport)
              .and()
                 // 禁用 CSRF
                 .csrf().disable()
                 .headers().frameOptions().disable()
              .and()
+                .logout().logoutUrl("/auth/logout").and()
                 .authorizeRequests()
                  // 指定路径下的资源需要进行验证后才能访问
                 .antMatchers("/").permitAll()
+                // 配置登录地址
                 .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
-                .antMatchers("/api/users/register").permitAll()
-                // 只允许管理员访问
-                .antMatchers("/api/users/detail").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST,"/api/users/register").permitAll()
                 // 其他请求需验证
                 .anyRequest().authenticated()
              .and()
-                // 添加用户登录验证过滤器，将登录请求交给此过滤器处理
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                // TODO 添加用户登录验证过滤器，将登录请求交给此过滤器处理，如果将登录接口暴露在 Controller 层，则注释这行
+               //  .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 // 不需要 session（不创建会话）
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
              .and()
                .apply(securityConfigurationAdapter());
         super.configure(http);
@@ -193,7 +193,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
-**CustomAuthenticationProvider**
+**CustomAuthenticationProvider （已过时）**
 
 CustomAuthenticationProvider 自定义用户身份验证组件类，它用于验证用户登录信息是否正确。需要将其配置到 Spring Sercurity 机制中才能使用。
 
@@ -251,7 +251,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 }
 ```
 
-**JwtAuthenticationFilter**
+**JwtAuthenticationFilter（已过时）**
 
 JwtAuthenticationFilter 用户登录验证过滤器，主要配合 `CustomAuthenticationProvider` 对用户登录请求进行验证，检查登录名和登录密码。如果验证成功，则生成 token 返回。
 
@@ -293,6 +293,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             // 这里返回 Authentication 后会通过我们自定义的 {@see CustomAuthenticationProvider} 进行验证
             return this.authenticationManager.authenticate(authentication);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
 
@@ -374,17 +375,14 @@ JwtAuthorizationFilter 用户请求授权过滤器，用于从用户请求中获
  *
  * <p>
  * 提供请求授权功能。用于处理所有 HTTP 请求，并检查是否存在带有正确 token 的 Authorization 标头。
- * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring Security 上下文中，并授权此次请求访问资源。</p>
+ * 如果 token 有效，则过滤器会将身份验证数据添加到 Spring 的安全上下文中，并授权此次请求访问资源。</p>
  *
  * @author star
  */
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private UserService userService;
-
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
-        this.userService = SpringSecurityContextHelper.getBean(UserService.class);
     }
 
     @Override
@@ -392,9 +390,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // 从 HTTP 请求中获取 token
         String token = this.getTokenFromHttpRequest(request);
         // 验证 token 是否有效
-        if (StringUtils.isNotEmpty(token) && JwtUtils.validateToken(token)) {
+        if (StringUtils.hasText(token) && JwtUtils.validateToken(token)) {
             // 获取认证信息
-            Authentication authentication = this.getAuthentication(token);
+            Authentication authentication = JwtUtils.getAuthentication(token);
             // 将认证信息存入 Spring 安全上下文中
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -414,29 +412,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (authorization == null || !authorization.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             return null;
         }
-        // 从请求头中获取 token
+        // 去掉 token 前缀
         return authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
     }
 
-    private Authentication getAuthentication(String token) {
-        // 从 token 信息中获取用户名
-        String userName = JwtUtils.getUserName(token);
-        if (StringUtils.isNotEmpty(userName)) {
-            // 从数据库中获取用户权限，保证权限的及时性
-            List<String> roles = userService.listUserRoles(userName);
-            // 如果用户角色为空，则默认赋予 ROLE_USER 权限
-            if (CollectionUtils.isEmpty(roles)) {
-                roles = Collections.singletonList(UserRoleConstants.ROLE_USER);
-            }
-            // 设置权限
-            List<GrantedAuthority> authorities = roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-            // 认证信息
-            return new UsernamePasswordAuthenticationToken(userName, null, authorities);
-        }
-        return null;
-    }
 }
 ```
 
@@ -474,7 +453,7 @@ public final class JwtUtils {
     }
 
     /**
-     * 根据用户名生成 token
+     * 根据用户名和用户角色生成 token
      *
      * @param userName   用户名
      * @param roles      用户角色
@@ -498,24 +477,21 @@ public final class JwtUtils {
                 // 设置有效时间
                 .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
                 .compact();
-        // jwt 前面一般都会加 Bearer，在请求头里加入 Authorization，并加上 Bearer 标注
-        return SecurityConstants.TOKEN_PREFIX + token;
+        return token;
     }
 
     /**
-     * 验证 token，返回结果
+     * 验证 token 是否有效
      *
      * <p>
      * 如果解析失败，说明 token 是无效的
+     *
+     * @param token token 信息
+     * @return 如果返回 true，说明 token 有效
      */
     public static boolean validateToken(String token) {
-        if (StringUtils.isEmpty(token)) {
-            throw new RuntimeException("Miss token");
-        }
         try {
-            Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token);
+            getTokenBody(token);
             return true;
         } catch (ExpiredJwtException e) {
             logger.warn("Request to parse expired JWT : {} failed : {}", token, e.getMessage());
@@ -529,55 +505,64 @@ public final class JwtUtils {
         return false;
     }
 
-    public static String getUserName(String token) {
+    /**
+     * 根据 token 获取用户认证信息
+     *
+     * @param token token 信息
+     * @return 返回用户认证信息
+     */
+    public static Authentication getAuthentication(String token) {
+        Claims claims = getTokenBody(token);
+        // 获取用户角色字符串
+        List<String> roles = (List<String>)claims.get(SecurityConstants.TOKEN_ROLE_CLAIM);
+        List<SimpleGrantedAuthority> authorities =
+                Objects.isNull(roles) ? Collections.singletonList(new SimpleGrantedAuthority(UserRoleConstants.ROLE_USER)) :
+                        roles.stream()
+                                .map(SimpleGrantedAuthority::new)
+                                .collect(Collectors.toList());
+        // 获取用户名
+        String userName = claims.getSubject();
+
+        return new UsernamePasswordAuthenticationToken(userName, token, authorities);
+
+    }
+
+    private static Claims getTokenBody(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
-
 }
 ```
 
 ### 请求认证流程说明
 
-本项目中出现了两个过滤器，分别是 `JwtAuthenticationFilter` 和 `JwtAuthorizationFilter`。当用户发起请求时，都会先进入 `JwtAuthorizationFilter` 过滤器。如果请求是登录请求，又会进入 `JwtAuthorizationFilter` 过滤器。也就是说，只有是指定的登录请求才会进入 `JwtAuthorizationFilter` 过滤器。通过过滤器后，就进入 Spring Security 机制中。
-
+~~本项目中出现了两个过滤器，分别是 `JwtAuthenticationFilter` 和 `JwtAuthorizationFilter`。当用户发起请求时，都会先进入 `JwtAuthorizationFilter` 过滤器。如果请求是登录请求，又会进入 `JwtAuthenticationFilter` 过滤器。也就是说，只有是指定的登录请求才会进入 `JwtAuthenticationFilter` 过滤器。通过过滤器后，就进入 Spring Security 机制中。~~
+由于已将登录接口暴露在了 Controller 层，所以登录请求不会经过 `JwtAuthenticationFilter` 过滤器，它已经废弃。请求认证过程将变成，所有的请求会先经过 `JwtAuthorizationFilter` 过滤器，然后进入 Spring Security 机制中。
 
 ### 测试 API
 
 **注册账号**
-
-![注册账号](./asset/imgs/register.png)
-
+![register](https://img-blog.csdnimg.cn/20200524195659308.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 **登录**
-
-![登录](./asset/imgs/login.png)
-
+![login](https://img-blog.csdnimg.cn/20200524195721904.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 **带上正确的 token 访问需要身份验证的资源**  
-
-![correctToken](./asset/imgs/correctToken.png)  
-
+![correctToken](https://img-blog.csdnimg.cn/20200524200233825.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 **带上不正确的 token 访问需要身份验证的资源**
-
-![incorrectToken](./asset/imgs/incorrectToken.png)
-
+![incorrectToken](https://img-blog.csdnimg.cn/20200524200307326.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 
 **不带 token 访问需要身份验证的资源** 
-![noToken](./asset/imgs/noToken.png)
-
-
+![noToken](https://img-blog.csdnimg.cn/20200524200408739.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
 ### 项目调整记录
-
 - 增加 Swagger UI，方便查看项目接口。
 - 增加全局异常捕获功能。
 - 增加 JPA 审计功能，完善数据表审计信息。
 - 在 Controller 层中暴露用户登录接口(/api/auth/login)。
 - 完善项目详解内容。
 
-
 ### 参考文档
+
 - [https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-2/
 ](https://www.callicoder.com/spring-boot-spring-security-jwt-mysql-react-app-part-2/
 )

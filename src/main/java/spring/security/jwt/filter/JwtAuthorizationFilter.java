@@ -5,9 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
-import spring.security.jwt.SpringSecurityContextHelper;
 import spring.security.jwt.constant.SecurityConstants;
-import spring.security.jwt.service.UserService;
 import spring.security.jwt.util.JwtUtils;
 
 import javax.servlet.FilterChain;
@@ -28,11 +26,8 @@ import java.io.IOException;
  */
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private UserService userService;
-
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
-        this.userService = SpringSecurityContextHelper.getBean(UserService.class);
     }
 
     @Override
@@ -65,7 +60,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // 去掉 token 前缀
         return authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
     }
-
 
 
 }
