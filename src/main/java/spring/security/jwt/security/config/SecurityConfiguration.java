@@ -62,14 +62,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html");
     }
 
-    // TODO 如果将登录接口暴露在 Controller 层，则注释此配置
-    //@Override
-    //protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) {
-    //    // 设置自定义身份验证组件，用于从数据库中验证用户登录信息（用户名和密码）
-    //    CustomAuthenticationProvider authenticationProvider = new CustomAuthenticationProvider(bCryptPasswordEncoder());
-    //    authenticationManagerBuilder.authenticationProvider(authenticationProvider);
-    //}
-
     /**
      * 定义安全策略，设置 HTTP 访问规则
      */
@@ -97,8 +89,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // 其他请求需验证
                 .anyRequest().authenticated()
              .and()
-                // TODO 添加用户登录验证过滤器，将登录请求交给此过滤器处理，如果将登录接口暴露在 Controller 层，则注释这行
-               //  .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 // 不需要 session（不创建会话）
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
