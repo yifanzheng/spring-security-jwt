@@ -3,7 +3,6 @@ package spring.security.jwt.security;
 import spring.security.jwt.dto.UserDTO;
 
 /**
- *
  * JwtUserDTO
  *
  * @author star

@@ -45,12 +45,10 @@ public class UserService {
         if (userOptional.isPresent()) {
             throw new AlreadyExistsException("Save failed, the user name already exist.");
         }
-
         User user = userMapper.convertOfUserRegisterDTO(dto);
         // 将登录密码进行加密
         String cryptPassword = bCryptPasswordEncoder.encode(dto.getPassword());
         user.setPassword(cryptPassword);
-
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
@@ -61,8 +59,7 @@ public class UserService {
     }
 
     public Optional<User> getUserByName(String userName) {
-        Optional<User> userOptional = userRepository.findByUserName(userName);
-        return userOptional;
+        return userRepository.findByUserName(userName);
 
     }
 

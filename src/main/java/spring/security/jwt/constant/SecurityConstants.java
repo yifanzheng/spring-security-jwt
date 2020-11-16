@@ -16,7 +16,6 @@ public final class SecurityConstants {
      */
     public static final String AUTH_LOGIN_URL = "/api/auth/login";
 
-
     /**
      * JWT签名密钥，这里使用 HS512 算法的签名密钥
      * <p>

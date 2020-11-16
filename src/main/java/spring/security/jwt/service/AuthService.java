@@ -69,7 +69,6 @@ public class AuthService {
             userDTO.setRoles(roles);
 
             return new JwtUser(token, userDTO);
-
         }
         throw new BadCredentialsException("The user name or password error.");
     }
