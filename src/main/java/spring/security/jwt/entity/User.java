@@ -17,10 +17,10 @@ public class User extends AbstractAuditingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name", columnDefinition="varchar(20)", nullable = false, unique = true)
+    @Column(name = "user_name", columnDefinition="varchar(30)", nullable = false, unique = true)
     private String userName;
 
-    @Column(name = "nick_name", columnDefinition = "varchar(20)")
+    @Column(name = "nick_name", columnDefinition = "varchar(30)")
     private String nickName;
 
     @Column(name = "password", columnDefinition = "varchar(68)", nullable = false)

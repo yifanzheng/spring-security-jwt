@@ -16,6 +16,10 @@ public class UserRegisterDTO {
     private String userName;
 
     @NotBlank
+    @Size(min = 4, max = 30)
+    private String nickName;
+
+    @NotBlank
     @Size(min = 6, max = 15)
     private String password;
 
@@ -30,6 +34,14 @@ public class UserRegisterDTO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getPassword() {

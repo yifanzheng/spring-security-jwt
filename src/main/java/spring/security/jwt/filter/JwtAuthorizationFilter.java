@@ -61,5 +61,4 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         return authorization.replace(SecurityConstants.TOKEN_PREFIX, "");
     }
 
-
 }
