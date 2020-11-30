@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>security</name>
+    <name>security-jwt</name>
     <description>Demo project for Spring Boot</description>
 
     <parent>
@@ -52,13 +52,17 @@
             <version>${problem-spring-web.version}</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <!-- Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <!-- jasypt 密码加密组件 -->
         <dependency>
@@ -67,14 +71,15 @@
             <version>${jasypt.version}</version>
         </dependency>
         <!-- ./ jasypt 密码加密组件 -->
-
+        <!-- H2 Database -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>1.4.197</version>
             <scope>runtime</scope>
         </dependency>
-
+        <!-- ./ H2 Database -->
+        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -91,6 +96,12 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+        <!-- ./ JWT -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.5</version>
         </dependency>
         <!-- Swagger2 -->
         <dependency>
@@ -112,10 +123,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-commons</artifactId>
         </dependency>
     </dependencies>
     <build>

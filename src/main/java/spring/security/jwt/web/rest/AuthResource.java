@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import spring.security.jwt.constant.SecurityConstants;
+import spring.security.jwt.constant.JwtConstants;
 import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserLoginDTO;
 import spring.security.jwt.security.JwtUser;
@@ -37,7 +37,7 @@ public class AuthResource {
         // 认证成功后，将 token 存入响应头中返回
         HttpHeaders httpHeaders = new HttpHeaders();
         // 添加 token 前缀 "Bearer "
-        httpHeaders.set(SecurityConstants.TOKEN_HEADER, SecurityConstants.TOKEN_PREFIX + jwtUser.getToken());
+        httpHeaders.set(JwtConstants.HEADER, JwtConstants.PREFIX + jwtUser.getToken());
 
         return new ResponseEntity<>(jwtUser.getUser(), httpHeaders, HttpStatus.OK);
 

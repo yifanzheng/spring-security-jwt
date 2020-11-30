@@ -17,8 +17,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
-import spring.security.jwt.constant.SecurityConstants;
-import spring.security.jwt.filter.JwtAuthorizationFilter;
+import spring.security.jwt.constant.JwtConstants;
+import spring.security.jwt.security.filter.JwtAuthorizationFilter;
 
 /**
  * Web 安全配置
@@ -67,6 +67,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        System.out.println("3");
         http
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
@@ -84,7 +85,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                  // 指定路径下的资源需要进行验证后才能访问
                 .antMatchers("/").permitAll()
                 // 配置登录地址
-                .antMatchers(HttpMethod.POST, SecurityConstants.AUTH_LOGIN_URL).permitAll()
+                .antMatchers(HttpMethod.POST, JwtConstants.AUTH_LOGIN_URL).permitAll()
                 .antMatchers(HttpMethod.POST,"/api/users/register").permitAll()
                 // 其他请求需验证
                 .anyRequest().authenticated()

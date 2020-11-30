@@ -8,10 +8,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import spring.security.jwt.constant.JwtConstants;
+import spring.security.jwt.constant.RedisKeyConstants;
 import spring.security.jwt.constant.UserRoleConstants;
 import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserLoginDTO;
 import spring.security.jwt.entity.User;
+import spring.security.jwt.security.JwtInfo;
 import spring.security.jwt.security.JwtUser;
 import spring.security.jwt.util.JwtUtils;
 
@@ -31,6 +34,9 @@ public class AuthService {
     private UserService userService;
 
     @Autowired
+    private JwtRedisCacheService jwtRedisCacheService;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
@@ -48,18 +54,21 @@ public class AuthService {
             throw new UsernameNotFoundException("User not found with userName: " + userName);
         }
         User user = userOptional.get();
-        // 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
+        // 1. 验证登录密码是否正确。如果正确，则赋予用户相应权限并生成用户认证信息
         if (this.bCryptPasswordEncoder.matches(password, user.getPassword())) {
             List<String> roles = userService.listUserRoles(userName);
             // 如果用户角色为空，则默认赋予 ROLE_USER 角色
             if (CollectionUtils.isEmpty(roles)) {
                 roles = Collections.singletonList(UserRoleConstants.ROLE_USER);
             }
-            // 生成 token
-            String token = JwtUtils.generateToken(userName, roles, userLogin.getRememberMe());
+            // 2. 生成 jwt 信息
+            JwtInfo jwtInfo = this.generateJwtInfo(userName, roles, userLogin.getRememberMe());
+            // 3. 缓存 jwt
+            String key = RedisKeyConstants.PREFIX_REFRESH_TOKEN + userName;
+            jwtRedisCacheService.setValue(key, jwtInfo, JwtConstants.EXPIRE_REFRESH_TIME);
 
-            // 认证成功后，设置认证信息到 Spring Security 上下文中
-            Authentication authentication = JwtUtils.getAuthentication(token);
+            // 4. 设置认证信息到 Spring Security 上下文中
+            Authentication authentication = JwtUtils.getAuthentication(jwtInfo.getToken());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // 用户信息
@@ -68,7 +77,7 @@ public class AuthService {
             userDTO.setEmail(user.getEmail());
             userDTO.setRoles(roles);
 
-            return new JwtUser(token, userDTO);
+            return new JwtUser(jwtInfo.getToken(), userDTO);
         }
         throw new BadCredentialsException("The user name or password error.");
     }
@@ -81,5 +90,12 @@ public class AuthService {
      */
     public void logout() {
         SecurityContextHolder.clearContext();
+    }
+
+    private JwtInfo generateJwtInfo(String userName, List<String> roles, boolean rememberMe) {
+        long createTime = System.currentTimeMillis();
+        String accessToken = JwtUtils.createToken(userName, roles, createTime, rememberMe);
+
+        return new JwtInfo(accessToken, createTime);
     }
 }
