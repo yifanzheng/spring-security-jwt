@@ -49,4 +49,11 @@ public class AuthResource {
         authService.logout();
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/refreshToken")
+    @ApiOperation(value = "刷新 Token")
+    public ResponseEntity<String> refreshToken() {
+        String token = authService.refreshToken("");
+        return ResponseEntity.ok(token);
+    }
 }

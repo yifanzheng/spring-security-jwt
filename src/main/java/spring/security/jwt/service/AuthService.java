@@ -82,4 +82,8 @@ public class AuthService {
     public void logout() {
         SecurityContextHolder.clearContext();
     }
+
+    public String refreshToken(String userName) {
+       return "test";
+    }
 }

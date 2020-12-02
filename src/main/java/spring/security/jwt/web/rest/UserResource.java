@@ -10,6 +10,9 @@ import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.service.UserService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * UserResource
  *
@@ -45,6 +48,30 @@ public class UserResource {
         userService.delete(userName);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/usertest1")
+    @ApiOperation(value = "根据用户名获取用户信息")
+    public ResponseEntity<Map<String, String>> getUserTest1() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("user1", "user1");
+        return ResponseEntity.ok(map);
+    }
+
+    @GetMapping("/usertest2")
+    @ApiOperation(value = "根据用户名获取用户信息")
+    public ResponseEntity<Map<String, String>> getUserTest2() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("user2", "user2");
+        return ResponseEntity.ok(map);
+    }
+
+    @GetMapping("/usertest3")
+    @ApiOperation(value = "根据用户名获取用户信息")
+    public ResponseEntity<Map<String, String>> getUserTest3() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("user3", "user3");
+        return ResponseEntity.ok(map);
     }
 
 }
