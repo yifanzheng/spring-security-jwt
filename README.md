@@ -5,7 +5,7 @@
 
 下面，我使用了 Angular 的请求拦截器，利用 BehaviorSubject 进行 Token 刷新状态的监听，当 Token 刷新成功，放行后面的请求进行重试。
 
-除此之外，前端还可以利用 Promise，将请求存进队列中后，同时返回一个 Promise，让这个 Promise 一直处于 Pending 状态（即不调用 resolve），此时这个请求就会一直等啊等，只要我们不执行 resolve，这个请求就会一直在等待。当刷新 Token 的请求完成后 ，我们再调用 resolve，逐个重试。
+除此之外，前端还可以利用 Promise，将请求存进队列中后，同时返回一个 Promise，让这个 Promise 一直处于 Pending 状态（即不调用 resolve），此时这个请求就会一直等待，只要我们不执行 resolve，这个请求就会一直在等待。当刷新 Token 的请求完成后 ，我们再调用 resolve，逐个重试。
 
 **Angular 代码示列**
 
