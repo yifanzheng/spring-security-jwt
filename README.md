@@ -11,6 +11,21 @@ Spring Security 是 Spring 全家桶中一个功能强大且高度可定制的�
 
 Spring Security 对于初学者来说，的确很难上手。于是自己在工作之余对这部分知识进行了学习，并实现了一个简单的项目，主要使用了 Spring Boot 技术集成 Spring Security 和 Spring Data Jpa 技术。这个项目实现的比较简单，还有很多地方需要优化，希望有兴趣的朋友可以一起完善，期待你的 PR。
 
+### 项目调整记录
+
+- 增加 Swagger UI，方便查看项目接口。
+- 增加全局异常捕获功能。
+- 增加 JPA 审计功能，完善数据表审计信息。
+- 在 Controller 层中暴露用户登录接口(`/api/auth/login`)。
+- 增加 Token 刷新功能，提供前端和后端各自的方案。
+
+### Token 刷新并发处理方案
+
+- 后端利用 Redis 缓存：https://github.com/yifanzheng/spring-security-jwt/tree/refresh-token-redis
+
+- 前端利用请求拦截器：https://github.com/yifanzheng/spring-security-jwt/tree/refresh-token-frontend
+
+
 ### 项目下载
 
 - git clone https://github.com/yifanzheng/spring-security-jwt.git 。
@@ -368,12 +383,7 @@ public final class JwtUtils {
 
 **不带 token 访问需要身份验证的资源** 
 ![noToken](https://img-blog.csdnimg.cn/20200524200408739.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
-### 项目调整记录
-- 增加 Swagger UI，方便查看项目接口。
-- 增加全局异常捕获功能。
-- 增加 JPA 审计功能，完善数据表审计信息。
-- 在 Controller 层中暴露用户登录接口(/api/auth/login)。
-- 完善项目详解内容。
+
 
 ### 参考文档
 
