@@ -15,7 +15,7 @@ import java.util.Optional;
  *
  * @author star
  **/
-public final class SecurityUtils {
+public class SecurityUtils {
 
     private SecurityUtils() {
         throw new IllegalStateException("Cannot create instance of static util class");

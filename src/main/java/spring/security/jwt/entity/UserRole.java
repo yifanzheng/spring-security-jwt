@@ -9,7 +9,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "user_role")
-public class UserRole extends AbstractAuditingEntity{
+public class UserRole extends AbstractAuditingEntity {
 
     private static final long serialVersionUID = 1997955934111931587L;
 

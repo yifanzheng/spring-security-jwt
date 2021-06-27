@@ -61,7 +61,6 @@ public class User extends AbstractAuditingEntity {
         this.password = password;
     }
 
-
     public String getEmail() {
         return email;
     }

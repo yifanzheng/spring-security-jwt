@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * @author star
  **/
-public final class JwtUtils {
+public class JwtUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 

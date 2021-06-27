@@ -10,6 +10,8 @@ import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.service.UserService;
 
+import javax.validation.Valid;
+
 /**
  * UserResource
  *
@@ -27,13 +29,12 @@ public class UserResource {
     @ApiOperation(value = "根据用户名获取用户信息")
     public ResponseEntity<UserDTO> getUser(@PathVariable String userName) {
         UserDTO userDTO = userService.getUserInfoByName(userName);
-
         return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping("/register")
     @ApiOperation(value = "用户注册")
-    public ResponseEntity<Void> register(@RequestBody UserRegisterDTO userRegister) {
+    public ResponseEntity<Void> register(@RequestBody @Valid UserRegisterDTO userRegister) {
         userService.register(userRegister);
         return ResponseEntity.ok().build();
     }
@@ -43,7 +44,6 @@ public class UserResource {
     @ApiOperation(value = "根据用户名删除用户信息")
     public ResponseEntity<Void> deleteByUserName(@PathVariable("userName") String userName) {
         userService.delete(userName);
-
         return ResponseEntity.ok().build();
     }
 

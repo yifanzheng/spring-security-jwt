@@ -24,7 +24,7 @@ public class UserRegisterDTO {
     private String password;
 
     @NotBlank
-    @Email
+    @Email(message = "邮箱格式不对")
     @Size(max = 40)
     private String email;
 
