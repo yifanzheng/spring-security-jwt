@@ -49,7 +49,9 @@ Spring Security 对于初学者来说，的确很难上手。于是自己在工�
 **数据交互**
 
 用户登录 -> 后端验证登录并返回 token -> 前端携带 token 请求后端数据 -> 后端返回数据。
-![数据交互](https://img-blog.csdnimg.cn/20200628230845973.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L29zY2hpbmFfNDE3OTA5MDU=,size_16,color_FFFFFF,t_70)
+
+![token流程](https://user-images.githubusercontent.com/22571230/138224284-770c1891-1be4-4c7d-9b76-c6b821f4e0b2.png)
+
 
 ### 项目核心类说明
 
