@@ -1,5 +1,4 @@
 # Spring Security With JWT
-> GitHub 源码地址：[https://github.com/yifanzheng/spring-security-jwt](https://github.com/yifanzheng/spring-security-jwt)
 
 ### 概述
 
