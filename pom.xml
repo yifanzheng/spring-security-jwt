@@ -24,7 +24,7 @@
         <java.version>1.8</java.version>
         <problem-spring-web.version>0.22.5</problem-spring-web.version>
         <jwt.version>0.10.7</jwt.version>
-        <springfox.version>2.9.2</springfox.version>
+        <springfox.version>2.10.0</springfox.version>
         <jasypt.version>2.1.0</jasypt.version>
     </properties>
 
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.12</version>
+            <version>8.0.27</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
