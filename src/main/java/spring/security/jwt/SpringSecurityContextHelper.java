@@ -1,5 +1,6 @@
 package spring.security.jwt;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -18,6 +19,7 @@ public class SpringSecurityContextHelper implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
        SpringSecurityContextHelper.applicationContext = applicationContext;
+        HikariDataSource
     }
 
     /**

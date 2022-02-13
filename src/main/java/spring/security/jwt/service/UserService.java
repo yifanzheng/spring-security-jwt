@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import spring.security.jwt.dto.UserDTO;
 import spring.security.jwt.dto.UserRegisterDTO;
 import spring.security.jwt.entity.User;
@@ -89,9 +90,14 @@ public class UserService {
 
     @Transactional(rollbackFor = Exception.class)
     public void delete(String userName) {
-        // 删除用户角色信息
-        userRoleService.deleteByUserName(userName);
-        // 删除用户基本信息
-        userRepository.deleteByUserName(userName);
+        try {
+            // 删除用户角色信息
+            userRoleService.deleteByUserName(userName);
+            // 删除用户基本信息
+            userRepository.deleteByUserName(userName);
+        } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+
     }
 }

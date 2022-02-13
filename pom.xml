@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.5.RELEASE</version>
+        <version>2.1.4.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -24,7 +24,7 @@
         <java.version>1.8</java.version>
         <problem-spring-web.version>0.22.5</problem-spring-web.version>
         <jwt.version>0.10.7</jwt.version>
-        <springfox.version>2.9.2</springfox.version>
+        <springfox.version>2.10.0</springfox.version>
         <jasypt.version>2.1.0</jasypt.version>
     </properties>
 
@@ -63,6 +63,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+            <scope>provided</scope>
         </dependency>
         <!-- jasypt 密码加密组件 -->
         <dependency>
