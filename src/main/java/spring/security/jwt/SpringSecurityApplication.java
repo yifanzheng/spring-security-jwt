@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @SpringBootApplication
 public class SpringSecurityApplication {
+    
+    	private static final Logger log = LoggerFactory.getLogger(SpringSecurityApplication.class);
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SpringSecurityApplication.class);
