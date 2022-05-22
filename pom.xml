@@ -24,7 +24,7 @@
         <java.version>1.8</java.version>
         <problem-spring-web.version>0.22.5</problem-spring-web.version>
         <jwt.version>0.10.7</jwt.version>
-        <springfox.version>2.10.0</springfox.version>
+        <springfox.version>2.10.5</springfox.version>
         <jasypt.version>2.1.0</jasypt.version>
     </properties>
 
@@ -109,9 +109,16 @@
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
-            <artifactId>springfox-bean-validators</artifactId>
+            <artifactId>springfox-spring-webmvc</artifactId>
             <version>${springfox.version}</version>
         </dependency>
+
+
+<!--        <dependency>-->
+<!--            <groupId>io.springfox</groupId>-->
+<!--            <artifactId>springfox-bean-validators</artifactId>-->
+<!--            <version>${springfox.version}</version>-->
+<!--        </dependency>-->
         <!-- ./ Swagger2 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -120,6 +127,13 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+            <!-- or, for Android: -->
+<!--            <version>31.1-android</version>-->
         </dependency>
     </dependencies>
     <build>
