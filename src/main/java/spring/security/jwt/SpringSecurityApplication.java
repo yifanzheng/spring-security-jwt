@@ -15,7 +15,7 @@ import java.net.InetAddress;
 @SpringBootApplication
 public class SpringSecurityApplication {
     
-    	private static final Logger log = LoggerFactory.getLogger(SpringSecurityApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(SpringSecurityApplication.class);
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SpringSecurityApplication.class);
