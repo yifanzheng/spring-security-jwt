@@ -14,9 +14,23 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.5.RELEASE</version>
+        <version>2.7.0</version>
         <relativePath/>
     </parent>
+
+    <repositories>
+        <repository>
+            <id>spring</id>
+            <url>https://maven.aliyun.com/repository/spring</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,7 +38,7 @@
         <java.version>1.8</java.version>
         <problem-spring-web.version>0.22.5</problem-spring-web.version>
         <jwt.version>0.10.7</jwt.version>
-        <springfox.version>2.10.0</springfox.version>
+        <springfox.version>2.10.5</springfox.version>
         <jasypt.version>2.1.0</jasypt.version>
     </properties>
 
@@ -68,11 +82,6 @@
         </dependency>
         <!-- ./ jasypt 密码加密组件 -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.27</version>
-        </dependency>
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.1.210</version>
@@ -109,9 +118,32 @@
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
-            <artifactId>springfox-bean-validators</artifactId>
+            <artifactId>springfox-spring-webmvc</artifactId>
             <version>${springfox.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.plugin</groupId>
+            <artifactId>spring-plugin-core</artifactId>
+            <version>2.0.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.plugin</groupId>
+            <artifactId>spring-plugin-metadata</artifactId>
+            <version>2.0.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>io.springfox</groupId>-->
+<!--            <artifactId>springfox-bean-validators</artifactId>-->
+<!--            <version>${springfox.version}</version>-->
+<!--        </dependency>-->
         <!-- ./ Swagger2 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -120,6 +152,13 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
+            <!-- or, for Android: -->
+<!--            <version>31.1-android</version>-->
         </dependency>
     </dependencies>
     <build>

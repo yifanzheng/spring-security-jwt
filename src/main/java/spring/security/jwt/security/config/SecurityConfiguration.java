@@ -95,7 +95,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
              .and()
                .apply(securityConfigurationAdapter());
-        super.configure(http);
+//        super.configure(http);
     }
 
     private JwtConfigurer securityConfigurationAdapter() throws Exception{
