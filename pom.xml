@@ -66,6 +66,12 @@
             <version>${problem-spring-web.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.1.210</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
@@ -81,13 +87,6 @@
             <version>${jasypt.version}</version>
         </dependency>
         <!-- ./ jasypt 密码加密组件 -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.1.210</version>
-            <scope>runtime</scope>
-        </dependency>
-
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -121,7 +120,6 @@
             <artifactId>springfox-spring-webmvc</artifactId>
             <version>${springfox.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.plugin</groupId>
             <artifactId>spring-plugin-core</artifactId>
@@ -138,12 +136,6 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>io.springfox</groupId>-->
-<!--            <artifactId>springfox-bean-validators</artifactId>-->
-<!--            <version>${springfox.version}</version>-->
-<!--        </dependency>-->
         <!-- ./ Swagger2 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
