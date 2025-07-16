@@ -63,12 +63,12 @@
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>problem-spring-web</artifactId>
-            <version>${problem-spring-web.version}</version>
+            <version>0.22.5</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.1.210</version>
+            <version>2.2.220</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -84,41 +84,41 @@
         <dependency>
             <groupId>com.github.ulisesbocchio</groupId>
             <artifactId>jasypt-spring-boot-starter</artifactId>
-            <version>${jasypt.version}</version>
+            <version>3.0.5</version>
         </dependency>
         <!-- ./ jasypt 密码加密组件 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>${jwt.version}</version>
+            <version>0.10.7</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>${jwt.version}</version>
+            <version>0.10.7</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>${jwt.version}</version>
+            <version>0.12.0</version>
             <scope>runtime</scope>
         </dependency>
         <!-- Swagger2 -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.version}</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
+            <version>2.10.5</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-spring-webmvc</artifactId>
-            <version>${springfox.version}</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.plugin</groupId>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>org.springframework.plugin</groupId>
             <artifactId>spring-plugin-metadata</artifactId>
-            <version>2.0.0.RELEASE</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -148,7 +148,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
+            <version>32.0.1-jre</version>
             <!-- or, for Android: -->
 <!--            <version>31.1-android</version>-->
         </dependency>
