@@ -51,7 +51,7 @@ public class IpUtils {
                 }
             }
         } catch (Exception e) {
-            log.error("Get ip address fialed, message: {}", e.getMessage());
+            log.error("Get ip address failed, message: {}", e.getMessage());
         }
         if (Objects.nonNull(inetAddress)) {
             ipStr = inetAddress.getHostAddress();
@@ -82,7 +82,7 @@ public class IpUtils {
                 }
             }
         } catch (Exception e) {
-            log.error("Get ip address fialed, message: {}", e.getMessage());
+            log.error("Get ip address failed, message: {}", e.getMessage());
         }
         return ipList;
     }
